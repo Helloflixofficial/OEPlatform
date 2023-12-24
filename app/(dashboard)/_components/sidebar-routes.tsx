@@ -1,6 +1,7 @@
 "use client";
 import { Compass, Layout } from "lucide-react";
 import { SidebarItems } from "./sidebar-items";
+
 const RestRoutes = [
   {
     icon: Layout,

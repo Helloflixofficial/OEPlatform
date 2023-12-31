@@ -11,9 +11,11 @@ import {
   FormField,
   FormMessage,
   FormLabel,
+  FormItem,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
+
 const formSchema = z.object({
   title: z.string().min(1, {
     message: "Title is Required",
@@ -28,15 +30,38 @@ const create = () => {
     },
   });
 
-  const {isSubmitting,isValid } = form.formState;
-  const onSubmit   = (values: z.infer<typeof formSchema>) =>{
-    console.log(values)
-  } 
+  const { isSubmitting, isValid } = form.formState;
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    console.log(values);
+  };
 
-  return <div className="max-w-5xl mx-auto flex md:items-center md:justify-center h-full p-6">
-    <div>
+  return (
+    <div className="max-w-5xl mx-auto flex md:items-center md:justify-center h-full p-6">
+      <div>
         <h1 className="text-2xl"> Add your class</h1>
+        <p className="text-sm text-slate-600">
+          Tell me the name what u want to have of your website
+        </p>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-8 mt-8"
+          >
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    <h1>This is the title</h1>
+                  </FormLabel>
+                </FormItem>
+              )}
+            ></FormField>
+          </form>
+        </Form>
+      </div>
     </div>
-  </div>;
+  );
 };
 export default create;

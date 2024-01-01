@@ -1,5 +1,6 @@
 "use client";
 import * as z from "zod";
+import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
@@ -52,12 +53,30 @@ const create = () => {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
-                    <h1>This is the title</h1>
-                  </FormLabel>
+                  <FormLabel>Course You Want To Add</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={isSubmitting}
+                      placeholder="e.g -- Advanced web courses"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    what will be you teach in this course
+                  </FormDescription>
                 </FormItem>
               )}
             ></FormField>
+            <div className="flex items-center gap-x-2">
+              <Link href="/">
+                <Button type="button" variant="ghost">
+                  Cancel
+                </Button>
+              </Link>
+              <Button type="submit" disabled={!isValid || isSubmitting}>
+                Continue
+              </Button>
+            </div>
           </form>
         </Form>
       </div>

@@ -39,7 +39,7 @@ const create = () => {
       const respose = await axios.post("/api/course", values);
       router.push(`/teacher/courses/${respose.data.id}`);
     } catch {
-      toast.error("something is wrong");
+      toast.error("Something is wrong");
     }
   };
 

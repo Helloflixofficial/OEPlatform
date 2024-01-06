@@ -1,46 +1,46 @@
 datasource db {
-  provider = "mongodb"
-  url      = env("DATABASE_URL")
+  provider     = "mongodb"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 model Course {
-  id          String  @id @default(uuid())
+  id          String       @id @default(uuid()) @map("_id") @db.ObjectId
   userId      String
-  title       String  @db.Text
-  description String? @db.Text
-  imageUrl    String? @db.Text
+  title       String
+  description String?
+  imageUrl    String?
   price       Float?
-  isPublished Boolean @default(false)
+  isPublished Boolean      @default(false)
+  categoryId  String[]     @db.ObjectId
+  category    Category?    @relation(fields: [categoryId], references: [id])
+  attachments Attachment[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
-  categroyId   String?
-  category  Categroy @relation(courseId)
-  attachments  Attachment[]
-  createdAt    DateTime     @default(now())
-  updateAt     DateTime     @updatedAt
-  Categroy     Categroy?    @relation(fields: [categroyName], references: [name])
-  categroyName String?
-  
-   @@index([CategoryId])
+  @@index([categoryId])
+  @@fulltext([title])
 }
 
-model Categroy {
-  id     String   @default(uuid())
-  name   String   @unique
-  course Course[]
+model Category {
+  id      String   @id @default(uuid()) @map("_id") @db.ObjectId
+  name    String   @unique
+  courses Course[]
 }
 
 model Attachment {
-  id        String   @id @default(uuid())
+  id        String   @id @default(uuid()) @map("_id") @db.ObjectId
   name      String
-  url       String   @db.Text
-  courseId  String
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  url       String
+  coursesId String[] @db.ObjectId
+  course    Course   @relation(fields: [coursesId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
-  updateAt  DateTime @updatedAt
+  updatedAt DateTime @updatedAt
 
-  @@index([courseId])
+  @@index([coursesId])
 }

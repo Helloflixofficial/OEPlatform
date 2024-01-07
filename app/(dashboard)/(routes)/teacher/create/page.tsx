@@ -10,7 +10,6 @@ import {
   FormControl,
   FormDescription,
   FormField,
-  FormMessage,
   FormLabel,
   FormItem,
 } from "@/components/ui/form";
@@ -36,8 +35,9 @@ const create = () => {
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const respose = await axios.post("/api/course", values);
+      const respose = await axios.post("/api/courses", values);
       router.push(`/teacher/courses/${respose.data.id}`);
+      toast.success("Course Created Succesfully");
     } catch {
       toast.error("Something is wrong");
     }

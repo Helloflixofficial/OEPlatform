@@ -1,8 +1,10 @@
 datasource db {
-  provider     = "mysql"
-  url          = env("DATABASE_URL")
+  provider  = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
   relationMode = "prisma"
 }
+
 
 generator client {
   provider = "prisma-client-js"
@@ -12,9 +14,9 @@ generator client {
 model Course {
   id String @id @default(uuid())
   userId String
-  title String @db.Text
-  description String? @db.Text
-  imageUrl String? @db.Text
+  title String 
+  description String? 
+  imageUrl String? 
   price Float?
   isPublished Boolean @default(false)
 
@@ -29,7 +31,9 @@ model Course {
   updatedAt DateTime @updatedAt
 
   @@index([categoryId])
-  @@fulltext([title])
+  // @@fulltext([title])
+   @@map("title")
+  
 }
 
 model Category {
@@ -41,7 +45,7 @@ model Category {
 model Attachment {
   id String @id @default(uuid())
   name String
-  url String @db.Text
+  url String
 
   courseId String
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
@@ -55,8 +59,8 @@ model Attachment {
 model Chapter {
   id String @id @default(uuid())
   title String
-  description String? @db.Text
-  videoUrl String? @db.Text
+  description String? 
+  videoUrl String? 
   position Int
   isPublished Boolean @default(false)
   isFree Boolean @default(false)

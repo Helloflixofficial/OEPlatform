@@ -1,5 +1,7 @@
+import { IconBadge } from "@/components/icon-badge";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs";
+import { LayoutDashboard } from "lucide-react";
 import { redirect } from "next/navigation";
 
 const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
@@ -7,7 +9,7 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
   const userId = auth();
   if (!userId) {
     return;
-    redirect("/");
+    redirect("/"); 
   }
 
   //course id verifying
@@ -45,7 +47,9 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
 
       <div className="grid grid-cols-1  md:grid-cols-2 gap-6 mt-16">
         <div className="flex items-center gap-x-2">
-          <h1 className="text-xl">CUSTOMIZE YOUR CODE HERE</h1>
+          <IconBadge icon={LayoutDashboard} />
+
+          <h2 className="text-xl">CUSTOMIZE YOUR CODE HERE</h2>
         </div>
       </div>
     </div>

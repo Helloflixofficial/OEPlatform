@@ -5,8 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Pencil } from "lucide-react";
 import { useState } from "react";
-// import toast from "react-hot-toast";
-// import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,6 +30,7 @@ const formSchema = z.object({
 export const TitleForm = ({ initialData, courseId }: TitleFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -39,15 +38,15 @@ export const TitleForm = ({ initialData, courseId }: TitleFormProps) => {
   });
 
   const { isSubmitting, isValid } = form.formState;
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/course/${courseId}`, values);
+      await axios.patch(`/api/courses/${courseId}`, values);
       toast.success("Course is Updated");
       toggleEdit();
-      const router = useRouter();
       router.refresh();
     } catch {
-      toast.error("Something is Worng"); 
+      toast.error("Something is Worng");
     }
   };
 

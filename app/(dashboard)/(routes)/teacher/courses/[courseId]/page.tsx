@@ -38,10 +38,10 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
 
   return (
     <div className="p-6">
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-between">
         <div className="flex flex-col gap-y-2">
-          <h1 className="text-2xl font-medium">Coures Here</h1>
-          <span className="text-slate-700 text-sm ">
+          <h1 className="text-2xl font-medium">Course setup</h1>
+          <span className="text-sm text-slate-700 ">
             Completed Task{completedData}
           </span>
         </div>
@@ -52,8 +52,8 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
           <IconBadge icon={LayoutDashboard} />
           <h2 className="text-xl">CUSTOMIZE YOUR CODE HERE</h2>
         </div>
-        <TitleForm initialData={course} courseId={course.id}/>
-        <DescriptionForm initialData={course} courseId={course.id}/>
+        <TitleForm initialData={course} courseId={course.id} />
+        <DescriptionForm initialData={course} courseId={course.id} />
       </div>
     </div>
   );

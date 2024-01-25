@@ -5,6 +5,7 @@ import { LayoutDashboard } from "lucide-react";
 import { redirect } from "next/navigation";
 import { TitleForm } from "./_component/title-form";
 import { DescriptionForm } from "./_component/description-form";
+import { ImageForm } from "./_component/image-form";
 
 const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
   // userId verifying
@@ -54,6 +55,7 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
         </div>
         <TitleForm initialData={course} courseId={course.id} />
         <DescriptionForm initialData={course} courseId={course.id} />
+        <ImageForm initialData={course} courseId={course.id} />
       </div>
     </div>
   );

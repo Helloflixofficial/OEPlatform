@@ -4,13 +4,14 @@ import * as z from "zod";
 import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { ImageIcon, Pencil, PlusCircle, Image } from "lucide-react";
+import { ImageIcon, Pencil, PlusCircle } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { Course } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import { FileUpload } from "@/components/file-upload";
+import Image from "next/image";
 
 interface ImageFormProps {
   initialData: Course;
@@ -56,18 +57,16 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
         Course image
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing && <>Cancel</>}
-
           {!isEditing && !initialData.imageUrl && (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add IMAGE
+              Add an image
             </>
           )}
-
           {!isEditing && initialData.imageUrl && (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit Image
+              Edit image
             </>
           )}
         </Button>
@@ -89,14 +88,18 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
         ))}
       {isEditing && (
         <div>
-          <FileUpload endpoint={"courseImage"}
-          onChange={(url) =>{
-            if(url){
-              onSubmit({imageUrl: url});
-            }
-          } }/>
+          <FileUpload
+            endpoint="courseImage"
+            onChange={(url) => {
+              if (url) {
+                onSubmit({ imageUrl: url });
+              }
+            }}
+          />
+          <div className="text-xs text-muted-foreground mt-4">
+            16:9 aspect ratio recommended
+          </div>
         </div>
-       
       )}
     </div>
   );

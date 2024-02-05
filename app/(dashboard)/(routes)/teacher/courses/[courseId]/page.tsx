@@ -15,6 +15,12 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
     redirect("/");
   }
 
+  const categories = await db.category.findMany({
+    orderBy: {
+      name: "asc",
+    },
+  });
+
   //course id verifying
   const course = await db.course.findUnique({
     where: {

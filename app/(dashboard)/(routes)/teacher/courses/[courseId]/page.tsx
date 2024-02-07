@@ -21,6 +21,8 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
     },
   });
 
+console.log(categories)
+
   //course id verifying
   const course = await db.course.findUnique({
     where: {

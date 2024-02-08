@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { TitleForm } from "./_component/title-form";
 import { DescriptionForm } from "./_component/description-form";
 import { ImageForm } from "./_component/image-form";
+import { CategoryForm } from "./_component/category-form";
 
 const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
   // userId verifying
@@ -64,6 +65,10 @@ console.log(categories)
         <TitleForm initialData={course} courseId={course.id} />
         <DescriptionForm initialData={course} courseId={course.id} />
         <ImageForm initialData={course} courseId={course.id} />
+    <CategoryForm initialData={course} courseId={course.id} options={categories.map((categories)=> ({
+      label:categories.name,
+      value:categories.id
+    }))}/>
       </div>
     </div>
   );

@@ -19,7 +19,7 @@ https://ui.shadcn.com/ for UI
 https://logoipsum.com/ for Demo Logo
 https://colorhunt.co/ for Color Pick
 https://dashboard.clerk.com/ for User & Authentication
-///////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 
 Key Features:
 
@@ -47,7 +47,7 @@ Key Features:
 ### Cloning the repository
 
 ```shell
-git clone "::::::::::::::::::::::::::::::::::::::::"
+git clone "repo here"
 ```
 
 ### Install packages

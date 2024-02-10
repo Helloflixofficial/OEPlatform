@@ -35,30 +35,3 @@ async function main() {
   await database.$disconnect();
 }
 main();
-
-// const { PrismaClient } = require("@prisma/client")
-// const database = new PrismaClient();
-// async function main() {
-//   try {
-//     await database.category.createMany({
-//       data: [
-//         { name: "Music" },
-//         { name: "Editing" },
-//         { name: "Fitness" },
-//         { name: "Painting" },
-//         { name: "Photgraphy" },
-//         { name: "Engineering" },
-//         { name: "Computer Science" },
-//         { name: "Website Devlopment" },
-//       ],
-//     });
-
-//     console.log("Success");
-//   } catch (error) {
-//     console.log("Error seeding the database categories", error);
-//   } finally {
-//     await database.$disconnect();
-//   }
-// }
-
-// main();

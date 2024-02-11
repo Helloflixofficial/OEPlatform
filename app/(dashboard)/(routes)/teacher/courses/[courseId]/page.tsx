@@ -1,12 +1,13 @@
 import { IconBadge } from "@/components/icon-badge";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs";
-import { LayoutDashboard } from "lucide-react";
+import { CircleDollarSign, LayoutDashboard, ListChecks } from "lucide-react";
 import { redirect } from "next/navigation";
 import { TitleForm } from "./_component/title-form";
 import { DescriptionForm } from "./_component/description-form";
 import { ImageForm } from "./_component/image-form";
 import { CategoryForm } from "./_component/category-form";
+import { PriceForm } from "./_component/price-form";
 
 const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
   // userId verifying
@@ -22,7 +23,7 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
     },
   });
 
-console.log(categories)
+  console.log(categories);
 
   //course id verifying
   const course = await db.course.findUnique({
@@ -65,11 +66,29 @@ console.log(categories)
         <TitleForm initialData={course} courseId={course.id} />
         <DescriptionForm initialData={course} courseId={course.id} />
         <ImageForm initialData={course} courseId={course.id} />
-    <CategoryForm initialData={course} courseId={course.id} options={categories.map((categories)=> ({
-      label:categories.name,
-      value:categories.id
-    }))}/>
+        <CategoryForm
+          initialData={course}
+          courseId={course.id}
+          options={categories.map((categories) => ({
+            label: categories.name,
+            value: categories.id,
+          }))}
+        />
       </div>
+      <div className="space-y-6">
+        <div>
+          <div className="flex items-center gap-x-2">
+            <IconBadge icon={ListChecks} />
+            <h2 className="text-xl">Chapter Course</h2>
+          </div>
+          <div>To DO : Chapter</div>
+        </div>
+      </div>
+      <div className="flex items-center gap-x-2">
+        <IconBadge icon={CircleDollarSign} />
+        <h2 className="text-xl">Sell Your Course</h2>
+      </div>
+      <PriceForm initialData={course} courseId={course.id} />
     </div>
   );
 };

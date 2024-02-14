@@ -5,26 +5,25 @@ import { Pencil, PlusCircle, ImageIcon } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { Course } from "@prisma/client";
+import { Attachment, Course } from "@prisma/client";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { FileUpload } from "@/components/file-upload";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+
 interface AttachmentFormProps {
-  initialData: Course
+  initialData: Course & { attachments: Attachment };
   courseId: string;
-};
+}
 
 const formSchema = z.object({
-  imageUrl: z.string().min(1, {
-    message: "Image is required",
-  }),
+  imageUrl: z.string().min(1),
 });
 
 export const AttachmentForm = ({
   initialData,
-  courseId
+  courseId,
 }: AttachmentFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
 
@@ -32,46 +31,41 @@ export const AttachmentForm = ({
 
   const router = useRouter();
 
-const form =  useForm<z.infer<typeof formSchema>>({
-   resolver : zodResolver(formSchema),
-   defaultValues:{
-    imageUrl : initialData?.imageUrl || "",
-   }
-})
-
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      imageUrl: initialData?.imageUrl || "",
+    },
+  });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/courses/${courseId}`, values);
+      await axios.post(`/api/courses/${courseId}/attachments`, values);
       toast.success("Course updated");
       toggleEdit();
       router.refresh();
     } catch {
       toast.error("Something went wrong");
     }
-  }
+  };
 
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
         Course image
         <Button onClick={toggleEdit} variant="ghost">
-          {isEditing && (
-            <>Cancel</>
-          )}
+          {isEditing && <>Cancel</>}
           {!isEditing && (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
               Add an File
             </>
           )}
-        
         </Button>
-
         {/* not editing */}
       </div>
-      {!isEditing && (
-        !initialData.imageUrl ? (
+      {!isEditing &&
+        (!initialData.imageUrl ? (
           <div className="flex items-center justify-center h-60 bg-slate-200 rounded-md">
             <ImageIcon className="h-10 w-10 text-slate-500" />
           </div>
@@ -84,8 +78,7 @@ const form =  useForm<z.infer<typeof formSchema>>({
               src={initialData.imageUrl}
             />
           </div>
-        )
-      )}
+        ))}
       {isEditing && (
         <div>
           <FileUpload
@@ -102,5 +95,5 @@ const form =  useForm<z.infer<typeof formSchema>>({
         </div>
       )}
     </div>
-  )
-}
+  );
+};

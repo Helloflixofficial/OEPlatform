@@ -13,7 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 interface AttachmentFormProps {
-  initialData: Course & { attachments: Attachment };
+  initialData: Course & { attachments: Attachment[] };
   courseId: string;
 }
 

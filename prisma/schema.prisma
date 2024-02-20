@@ -59,8 +59,8 @@ model Attachment {
 model Chapter {
   id String @id @default(uuid())
   title String
-  description String? 
-  videoUrl String? 
+  description String? @db.Text
+  videoUrl String? @db.Text
   position Int
   isPublished Boolean @default(false)
   isFree Boolean @default(false)
@@ -77,6 +77,7 @@ model Chapter {
 
   @@index([courseId])
 }
+
 
 model MuxData {
   id String @id @default(uuid())

@@ -48,7 +48,6 @@ export const ChaptersForm = ({ initialData, courseId }: ChaptersFormProps) => {
   });
 
   const { isSubmitting, isValid } = form.formState;
-
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.post(`/api/courses/${courseId}/chapters`, values);
@@ -58,7 +57,7 @@ export const ChaptersForm = ({ initialData, courseId }: ChaptersFormProps) => {
     } catch {
       toast.error("Something went wrong");
     }
-  };
+  }
 
   const onReorder = async (updateData: { id: string; position: number }[]) => {
     try {

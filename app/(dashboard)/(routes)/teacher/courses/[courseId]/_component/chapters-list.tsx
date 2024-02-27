@@ -37,12 +37,29 @@ export const ChaptersList = ({
     setIsMounted(true);
   }, []);
 
+  const onDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+    const items = Array.from(chapter);
+    const [onreorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, onreorderedItem);
+
+    const startIndex = Math.min(result.source.index, result.destination.index);
+    const endIndex = Math.max(result.source.index, result.destination.index);
+    const updateChapter = items.splice(startIndex, endIndex + 1);
+
+    const bulkUpdatedData = updateChapter.map((chapter) => ({
+      id: chapter.id,
+      position: items.findIndex((items) => items.id === chapter.id),
+    }));
+    onReorder(bulkUpdatedData);
+  };
+
   if (!isMounted) {
     return null;
   }
   return (
     <div>
-      <DragDropContext onDragEnd={() => {}}>
+      <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="chapter">
           {(provided) => (
             <div {...provided.droppableProps} ref={provided.innerRef}>

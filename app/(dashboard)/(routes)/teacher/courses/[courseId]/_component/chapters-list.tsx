@@ -37,22 +37,25 @@ export const ChaptersList = ({
     setIsMounted(true);
   }, []);
 
+
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) return;
     const items = Array.from(chapter);
-    const [onreorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, onreorderedItem);
-
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+  
     const startIndex = Math.min(result.source.index, result.destination.index);
     const endIndex = Math.max(result.source.index, result.destination.index);
-    const updateChapter = items.splice(startIndex, endIndex + 1);
-
+  
+    const updateChapter = items.slice(startIndex, endIndex + 1);
+    setChapter(items);
     const bulkUpdatedData = updateChapter.map((chapter) => ({
       id: chapter.id,
-      position: items.findIndex((items) => items.id === chapter.id),
+      position: items.findIndex((item) => item.id === chapter.id),
     }));
     onReorder(bulkUpdatedData);
   };
+  
 
   if (!isMounted) {
     return null;
@@ -97,7 +100,7 @@ export const ChaptersList = ({
                             chapter.isPublished && "bg-sky-700"
                           )}
                         >
-                          {chapter.isPublished ? "Published" : "Draft"}
+                          {chapter.isPublished ? "Published" : "BATMAN"}
                         </Badge>
                         <Pencil
                           onClick={() => onEdit(chapter.id)}

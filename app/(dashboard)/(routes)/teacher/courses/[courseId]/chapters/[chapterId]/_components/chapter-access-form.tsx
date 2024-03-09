@@ -71,14 +71,14 @@ export const ChapterAccessFormForm = ({
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Course description
+        Chapters
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing ? (
             <>Cancel</>
           ) : (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit description
+              Edit Access
             </>
           )}
         </Button>
@@ -90,10 +90,18 @@ export const ChapterAccessFormForm = ({
             !initialData.description && "text-slate-500 italic"
           )}
         >
-          {/* {initialData.description && "No description"} */}
-          {initialData.description && (
-            <Preview value={initialData.description} /> // Do not show HTML TAGS
-          )}
+          <p
+            className={cn(
+              "text-sm mt-2",
+              !initialData.isFree && "text-slate-500 italic"
+            )}
+          >
+            {initialData.isFree ? (
+              <>This Chapter is Free</>
+            ) : (
+              <>Unloack This Chapter</>
+            )}
+          </p>
         </div>
       )}
       {isEditing && (

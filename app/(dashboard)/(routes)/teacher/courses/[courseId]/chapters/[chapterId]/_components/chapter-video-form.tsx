@@ -55,19 +55,19 @@ export const ChapterVideoForm = ({
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Course image
+        Course Video
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing && <>Cancel</>}
           {!isEditing && !initialData.videoUrl && (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add an image
+              Add an Chapter
             </>
           )}
           {!isEditing && initialData.videoUrl && (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit image
+              Edit Chapter
             </>
           )}
         </Button>
@@ -84,7 +84,7 @@ export const ChapterVideoForm = ({
       {isEditing && (
         <div>
           <FileUpload
-            endpoint="courseImage"
+            endpoint="chapterVideo"
             onChange={(url) => {
               if (url) {
                 onSubmit({ videoUrl: url });

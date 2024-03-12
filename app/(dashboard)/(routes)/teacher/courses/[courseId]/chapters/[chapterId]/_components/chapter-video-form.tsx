@@ -8,8 +8,6 @@ import { useRouter } from "next/navigation";
 import { Chapter, MuxData } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import { FileUpload } from "@/components/file-upload";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 interface ChapterVideoFormProps {
   initialData: Chapter & { MuxData?: MuxData | null };
   courseId: string;
@@ -26,18 +24,8 @@ export const ChapterVideoForm = ({
   chapterId,
 }: ChapterVideoFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
-
   const toggleEdit = () => setIsEditing((current) => !current);
-
   const router = useRouter();
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      videoUrl: initialData?.videoUrl || "",
-    },
-  });
-
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.patch(

@@ -1,7 +1,7 @@
 const search = () => {
   return (
     <>
-      <h1>Search Pages brother</h1>
+      <h1>Search Pages brother  so we can use this as project</h1>
     </>
   );
 };

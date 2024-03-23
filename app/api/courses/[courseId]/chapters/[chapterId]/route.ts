@@ -1,13 +1,29 @@
 import Mux from "@mux/mux-node";
 import { auth } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
-
 import { db } from "@/lib/db";
+//old
+// const { Video } = new Mux(
+//   process.env.MUX_TOKEN_ID!.toString(),
+//   process.env.MUX_TOKEN_SECRET!.toString(),
+// );
+//console.log(process.env.MUX_TOKEN_ID);
+//console.log(process.env.MUX_TOKEN_SECRET);
+// New
 
-const { Video } = new Mux(
-  process.env.MUX_TOKEN_ID!,
-  process.env.MUX_TOKEN_SECRET!,
-);
+const Video = new Mux({
+  tokenId: process.env.MUX_TOKEN_ID,
+  tokenSecret: process.env.MUX_TOKEN_SECRET
+});
+
+if (
+  !process.env.MUX_TOKEN_ID ||
+  !process.env.MUX_TOKEN_SECRET ||
+  typeof process.env.MUX_TOKEN_ID !== "string" ||
+  typeof process.env.MUX_TOKEN_SECRET !== "string"
+) {
+  throw new Error("Missing or invalid Mux token ID or secret");
+}
 
 export async function PATCH(
   req: Request,

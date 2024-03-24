@@ -2,19 +2,9 @@ import Mux from "@mux/mux-node";
 import { auth } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-//old
-// const { Video } = new Mux(
-//   process.env.MUX_TOKEN_ID!.toString(),
-//   process.env.MUX_TOKEN_SECRET!.toString(),
-// );
-//console.log(process.env.MUX_TOKEN_ID);
-//console.log(process.env.MUX_TOKEN_SECRET);
-// New
 
-const Video = new Mux({
-  tokenId: process.env.MUX_TOKEN_ID,
-  tokenSecret: process.env.MUX_TOKEN_SECRET
-});
+const muxClient = new Mux();
+const { Video } = muxClient;
 
 if (
   !process.env.MUX_TOKEN_ID ||
@@ -32,7 +22,7 @@ export async function PATCH(
   try {
     const { userId } = auth();
     const { isPublished, ...values } = await req.json();
-
+    
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
@@ -88,6 +78,7 @@ export async function PATCH(
         },
       });
     }
+
 
     return NextResponse.json(chapter);
   } catch (error) {

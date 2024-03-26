@@ -16,10 +16,21 @@ const bannerVarients = cva(
   }
 );
 
+const iconMap = {
+  warning: AlertTriangle,
+  success: CheckCircleIcon,
+};
+
 interface BannerProps extends VariantProps<typeof bannerVarients> {
   label: string;
 }
 
-export const banner = ({ label, variant }: BannerProps) => {
-  return <div>banner</div>;
+export const Banner = ({ label, variant }: BannerProps) => {
+  const Icon = iconMap[variant || "warning"];
+
+  return (
+    <div className={cn(bannerVarients({ variant }))}>
+      <Icon className=" h-4 w-4 mr-2">{label}</Icon>
+    </div>
+  );
 };

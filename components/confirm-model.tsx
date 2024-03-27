@@ -11,6 +11,27 @@ import {
   AlertDialogAction,
 } from "./ui/alert-dialog";
 
-export const confirmModel = () => {
-  return <div>hello,sire</div>;
+interface confirmModelProps {
+  children: React.ReactNode;
+  onConfirm: () => void;
+}
+
+export const ConfirmModel = ({ children, onConfirm }: confirmModelProps) => {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>ARU YOU SURE</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action connont be undone!
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm}>Continue</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
 };

@@ -73,7 +73,7 @@ export async function DELETE(
       where: {
         courseId: params.courseId,
         isPublished: true,
-      },
+      }, 
     });
 
     if (PublishedChaptersInCourse.length) {

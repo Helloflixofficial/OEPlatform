@@ -22,42 +22,36 @@ export async function PATCH(
       return new NextResponse("unAuthrized user", { status: 401 });
     }
 
-    const chapter = await db.chapter.findUnique({
-      where: {
-        id: params.chapterId,
-        courseId: params.courseId,
-      },
-    });
-
-    const muxData = await db.muxData.findUnique({
-      where: {
-        chapterId: params.chapterId,
-      },
-    });
-
-    if (
-      !chapter ||
-      !muxData ||
-      !chapter.title ||
-      !chapter.description ||
-      !chapter.videoUrl
-    ) {
-      return new NextResponse("Internall Error ", { status: 400 });
-    }
-
-    const publishedChapter = await db.chapter.update({
+    const unpublishedChapter = await db.chapter.update({
       where: {
         id: params.chapterId,
         courseId: params.courseId,
       },
       data: {
+        isPublished: false,
+      },
+    });
+
+    const publishChapterInCourse = await db.chapter.findMany({
+      where: {
+        courseId: params.courseId,
         isPublished: true,
       },
     });
 
-    return NextResponse.json(publishedChapter);
+    if (!publishChapterInCourse) {
+      await db.course.update({
+        where: { id: params.courseId },
+        data: {
+          id: params.courseId,
+          isPublished : false,
+        },
+      });
+    }
+
+    return NextResponse.json(unpublishedChapter);
   } catch (error) {
-    console.log("error Found Here in Folder call Publish");
+    console.log("error Found Here in Folder call unPublish");
     return new NextResponse("server not found path", { status: 500 });
   }
 }

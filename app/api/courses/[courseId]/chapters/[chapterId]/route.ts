@@ -6,14 +6,14 @@ import { db } from "@/lib/db";
 const muxClient = new Mux();
 const { Video } = muxClient;
 
-if (
-  !process.env.MUX_TOKEN_ID ||
-  !process.env.MUX_TOKEN_SECRET ||
-  typeof process.env.MUX_TOKEN_ID !== "string" ||
-  typeof process.env.MUX_TOKEN_SECRET !== "string"
-) {
-  throw new Error("Missing or invalid Mux token ID or secret");
-}
+// if (
+//   !process.env.MUX_TOKEN_ID ||
+//   !process.env.MUX_TOKEN_SECRET ||
+//   typeof process.env.MUX_TOKEN_ID !== "string" ||
+//   typeof process.env.MUX_TOKEN_SECRET !== "string"
+// ) {
+//   throw new Error("Missing or invalid Mux token ID or secret");
+// }
 
 export async function DELETE(
   req: Request,

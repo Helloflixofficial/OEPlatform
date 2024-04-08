@@ -9,7 +9,6 @@ import {
 
 import { db } from "@/lib/db";
 import { IconBadge } from "@/components/icon-badge";
-
 import { TitleForm } from "./_component/title-form";
 import { DescriptionForm } from "./_component/description-form";
 import { ImageForm } from "./_component/image-form";
@@ -17,18 +16,25 @@ import { CategoryForm } from "./_component/category-form";
 import { PriceForm } from "./_component/price-form";
 import { AttachmentForm } from "./_component/attachment-form";
 import { ChaptersForm } from "./_component/chapters-form";
+import { Banner } from "@/components/banner";
+import { Actions } from "./_component/actions";
 
-const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
+
+
+const CourseIdPage = async ({
+  params
+}: {
+  params: { courseId: string }
+}) => {
   const { userId } = auth();
 
   if (!userId) {
     return redirect("/");
   }
-
   const course = await db.course.findUnique({
     where: {
       id: params.courseId,
-      userId,
+      userId
     },
     include: {
       chapters: {
@@ -72,6 +78,10 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
 
   return (
     <>
+      {!course.isPublished && (
+        <Banner label="If this course is not unpublished, this will not be visible for the use" />
+      )}
+
       <div className="p-6">
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-y-2">
@@ -79,6 +89,13 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
             <span className="text-sm text-slate-700">
               Complete all fields {completionText}
             </span>
+          </div>
+          <div>
+          <Actions
+            disabled={!isComplete}
+            courseId={params.courseId}
+            isPublished={course.isPublished}
+          />
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">

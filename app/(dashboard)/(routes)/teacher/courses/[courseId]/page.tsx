@@ -1,10 +1,10 @@
 import { auth } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 import {
-  CircleDollarSign,
   File,
-  LayoutDashboard,
   ListChecks,
+  LayoutDashboard,
+  CircleDollarSign,
 } from "lucide-react";
 
 import { db } from "@/lib/db";
@@ -15,36 +15,37 @@ import { ImageForm } from "./_component/image-form";
 import { CategoryForm } from "./_component/category-form";
 import { PriceForm } from "./_component/price-form";
 import { AttachmentForm } from "./_component/attachment-form";
-import { ChaptersForm } from "./_component/chapters-form";
+import { ChaptersForm } from "./_component/chapters-form";  
 import { Banner } from "@/components/banner";
 import { Actions } from "./_component/actions";
 
-
-
 const CourseIdPage = async ({
-  params
+  params,
 }: {
-  params: { courseId: string }
+  params: {
+    courseId: string;
+  };
 }) => {
   const { userId } = auth();
 
   if (!userId) {
     return redirect("/");
   }
+
   const course = await db.course.findUnique({
     where: {
+      userId,
       id: params.courseId,
-      userId
     },
     include: {
-      chapters: {
-        orderBy: {
-          position: "asc",
-        },
-      },
       attachments: {
         orderBy: {
           createdAt: "desc",
+        },
+      },
+      chapters: {
+        orderBy: {
+          position: "asc",
         },
       },
     },
@@ -56,16 +57,16 @@ const CourseIdPage = async ({
     },
   });
 
-  if (!course) {
+  if (!course || course.userId !== userId) {
     return redirect("/");
   }
 
   const requiredFields = [
     course.title,
-    course.description,
-    course.imageUrl,
     course.price,
+    course.imageUrl,
     course.categoryId,
+    course.description,
     course.chapters.some((chapter) => chapter.isPublished),
   ];
 
@@ -74,36 +75,41 @@ const CourseIdPage = async ({
 
   const completionText = `(${completedFields}/${totalFields})`;
 
-  const isComplete = requiredFields.every(Boolean);
+  const isCompleted = requiredFields.every(Boolean);
 
   return (
     <>
       {!course.isPublished && (
-        <Banner label="If this course is not unpublished, this will not be visible for the use" />
+        <Banner
+          variant="warning"
+          label="This course is unpublished. It will not be visible in the students."
+        />
       )}
 
       <div className="p-6">
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-y-2">
             <h1 className="text-2xl font-medium">Course setup</h1>
+
             <span className="text-sm text-slate-700">
               Complete all fields {completionText}
             </span>
           </div>
-          <div>
+
           <Actions
-            disabled={!isComplete}
-            courseId={params.courseId}
+            courseId={course.id}
+            disabled={!isCompleted}
             isPublished={course.isPublished}
           />
-          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
+
+        <div className="grid grid-cols-1 gap-6 mt-16 md:grid-cols-2">
           <div>
             <div className="flex items-center gap-x-2">
               <IconBadge icon={LayoutDashboard} />
               <h2 className="text-xl">Customize your course</h2>
             </div>
+
             <TitleForm initialData={course} courseId={course.id} />
             <DescriptionForm initialData={course} courseId={course.id} />
             <ImageForm initialData={course} courseId={course.id} />
@@ -116,26 +122,35 @@ const CourseIdPage = async ({
               }))}
             />
           </div>
+
           <div className="space-y-6">
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={ListChecks} />
+
                 <h2 className="text-xl">Course chapters</h2>
               </div>
+
               <ChaptersForm initialData={course} courseId={course.id} />
             </div>
+
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={CircleDollarSign} />
+
                 <h2 className="text-xl">Sell your course</h2>
               </div>
-              <PriceForm initialData={course} courseId={course.id} />
+
+              <PriceForm courseId={course.id} initialData={course} />
             </div>
+
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={File} />
+
                 <h2 className="text-xl">Resources & Attachments</h2>
               </div>
+
               <AttachmentForm initialData={course} courseId={course.id} />
             </div>
           </div>

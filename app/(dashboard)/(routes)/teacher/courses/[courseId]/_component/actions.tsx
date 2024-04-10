@@ -7,12 +7,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
-interface actionProps {
+interface ActionProps {
   disabled: boolean;
   courseId: string;
   isPublished: boolean;
 }
-export const Actions = ({ disabled, courseId, isPublished }: actionProps) => {
+export const Actions = ({ disabled, courseId, isPublished }: ActionProps) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const onClick = async () => {

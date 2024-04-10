@@ -6,6 +6,11 @@ https://utfs.io/f/2517ead1-0b23-4adb-a622-98439ccd8484-qnfatu.png
 https://webdis-7ies.onrender.com/vidcdn/watch/naruto-episode-220
 https://github.com/vimeo -->
 <!--
+"error Tips 
+git fetch origin main:tmp
+git rebase tmp
+git push"
+
 git init
 git add .
 git commit -m "first commit"

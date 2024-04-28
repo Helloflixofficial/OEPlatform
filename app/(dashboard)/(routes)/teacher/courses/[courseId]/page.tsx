@@ -8,16 +8,16 @@ import {
 } from "lucide-react";
 
 import { db } from "@/lib/db";
-import { IconBadge } from "@/components/icon-badge";
-import { TitleForm } from "./_component/title-form";
-import { DescriptionForm } from "./_component/description-form";
-import { ImageForm } from "./_component/image-form";
-import { CategoryForm } from "./_component/category-form";
-import { PriceForm } from "./_component/price-form";
-import { AttachmentForm } from "./_component/attachment-form";
-import { ChaptersForm } from "./_component/chapters-form";  
 import { Banner } from "@/components/banner";
 import { Actions } from "./_component/actions";
+import { IconBadge } from "@/components/icon-badge";
+import { TitleForm } from "./_component/title-form";
+import { ImageForm } from "./_component/image-form";
+import { PriceForm } from "./_component/price-form";
+import { CategoryForm } from "./_component/category-form";
+import { ChaptersForm } from "./_component/chapters-form";
+import { AttachmentForm } from "./_component/attachment-form";
+import { DescriptionForm } from "./_component/description-form";
 
 const CourseIdPage = async ({
   params,

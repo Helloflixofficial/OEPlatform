@@ -18,6 +18,8 @@ import { CategoryForm } from "./_component/category-form";
 import { ChaptersForm } from "./_component/chapters-form";
 import { AttachmentForm } from "./_component/attachment-form";
 import { DescriptionForm } from "./_component/description-form";
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
 const CourseIdPage = async ({
   params,
@@ -32,7 +34,7 @@ const CourseIdPage = async ({
     return redirect("/");
   }
 
-  const course = await db.course.findUnique({
+  const course = await prisma.course.findUnique({
     where: {
       userId,
       id: params.courseId,

@@ -1,8 +1,6 @@
 import { auth } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
-
 import { db } from "@/lib/db";
-import { isTeacher } from "@/lib/teacher";
 
 export async function POST(
   req: Request,
@@ -10,21 +8,16 @@ export async function POST(
 ) {
   try {
     const { userId } = auth();
-    const { courseId } = params;
     const { url } = await req.json();
 
-    if (!userId || !isTeacher(userId)) {
+    if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
-    }
-
-    if (!url) {
-      return new NextResponse("File URL is required", { status: 400 });
     }
 
     const courseOwner = await db.course.findUnique({
       where: {
-        userId,
-        id: courseId,
+        id: params.courseId,
+        userId: userId,
       },
     });
 
@@ -35,14 +28,14 @@ export async function POST(
     const attachment = await db.attachment.create({
       data: {
         url,
-        courseId,
         name: url.split("/").pop(),
+        courseId: params && params.courseId, // Add a check for params and courseId
       },
     });
 
     return NextResponse.json(attachment);
   } catch (error) {
-    console.error("[COURSE_ID_ATTACHMENTS]", error);
-    return new NextResponse("Internal server error", { status: 500 });
+    console.log("COURSE_ID_ATTACHMENTS", error);
+    return new NextResponse("Internal Error", { status: 500 });
   }
 }

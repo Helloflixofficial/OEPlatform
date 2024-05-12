@@ -34,7 +34,7 @@ const CourseIdPage = async ({
     return redirect("/");
   }
 
-  const course = await prisma.course.findUnique({
+  const course = await db.course.findUnique({
     where: {
       userId,
       id: params.courseId,

@@ -1,6 +1,6 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["fullTextIndex", "fullTextSearch"]
+  provider = "prisma-client-js"
+  // previewFeatures = ["fullTextIndex", "fullTextSearch"]
 }
 
 datasource db {
@@ -10,7 +10,7 @@ datasource db {
 }
 
 model Course {
-  id          String       @id @default(uuid())
+  id          String       @id @unique @default(uuid())
   userId      String
   title       String
   description String?

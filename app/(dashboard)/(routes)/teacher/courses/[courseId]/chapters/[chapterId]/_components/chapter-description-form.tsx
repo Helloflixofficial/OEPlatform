@@ -1,5 +1,4 @@
 "use client";
-
 import * as z from "zod";
 import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -90,7 +89,7 @@ export const ChapterDescriptionForm = ({
         >
           {/* {initialData.description && "No description"} */}
           {initialData.description && (
-            <Preview value={initialData.description} /> // Do not show HTML TAGS 
+            <Preview value={initialData.description} /> // Do not show HTML TAGS
           )}
         </div>
       )}

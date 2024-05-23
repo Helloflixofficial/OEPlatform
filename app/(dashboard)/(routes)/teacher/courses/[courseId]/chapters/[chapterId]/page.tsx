@@ -1,12 +1,13 @@
-import { IconBadge } from "@/components/icon-badge";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs";
 import { ArrowLeft, Eye, LayoutDashboard, Video } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ChapterTitleForm } from "./_components/chapter-title-form";
-import { ChapterDescriptionForm } from "./_components/chapter-description-form";
+import { PrismaClient } from "@prisma/client";
+import { IconBadge } from "@/components/icon-badge";
 import { ChapterAccessFormForm } from "./_components/chapter-access-form";
+import { ChapterDescriptionForm } from "./_components/chapter-description-form";
+import { ChapterTitleForm } from "./_components/chapter-title-form";
 import { ChapterVideoForm } from "./_components/chapter-video-form";
 
 const ChapterIdPage = async ({
@@ -14,6 +15,14 @@ const ChapterIdPage = async ({
 }: {
   params: { courseId: string; chapterId: string };
 }) => {
+  const prisma = new PrismaClient({
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL,
+      },
+    },
+  });
+
   const { userId } = auth();
   if (!userId) {
     return redirect("/");
@@ -34,11 +43,10 @@ const ChapterIdPage = async ({
   }
 
   const requiredFields = [chapter.title, chapter.description, chapter.videoUrl];
-
-  const totalFields = requiredFields.length;
+  const totlefeild = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
-  const completionText = `(${completedFields}/${totalFields})`;
 
+  const completed = `(${completedFields}/${totlefeild})`;
   return (
     <div className="p-6">
       <div className="flex items-center justify-between">
@@ -50,11 +58,12 @@ const ChapterIdPage = async ({
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to course setup
           </Link>
+
           <div className="flex items-center justify-between w-full">
             <div className="flex flex-col gap-y-2">
               <h1 className="text-2xl font-medium">Chapter Creation</h1>
               <span className="text-sm text-slate-700">
-                Complete all fields {completionText}
+                Complete all fields {completed}
               </span>
             </div>
           </div>
@@ -72,11 +81,11 @@ const ChapterIdPage = async ({
               courseId={params.courseId}
               chapterId={params.chapterId}
             />
-            <ChapterDescriptionForm
+            {/* <ChapterDescriptionForm
               initialData={chapter}
               courseId={params.courseId}
               chapterId={params.chapterId}
-            />
+            /> */}
           </div>
           <div>
             <div className="flex items-center gap-x-2">
@@ -103,4 +112,5 @@ const ChapterIdPage = async ({
     </div>
   );
 };
+
 export default ChapterIdPage;

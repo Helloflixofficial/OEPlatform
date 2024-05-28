@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { PrismaClient } from "@prisma/client";
 import { IconBadge } from "@/components/icon-badge";
 import { ChapterAccessFormForm } from "./_components/chapter-access-form";
-import { ChapterDescriptionForm } from "./_components/chapter-description-form";
+import { DescriptionForm } from "./_components/chapter-description-form";
 import { ChapterTitleForm } from "./_components/chapter-title-form";
 import { ChapterVideoForm } from "./_components/chapter-video-form";
 
@@ -81,11 +81,11 @@ const ChapterIdPage = async ({
               courseId={params.courseId}
               chapterId={params.chapterId}
             />
-            {/* <ChapterDescriptionForm
+            <DescriptionForm
               initialData={chapter}
               courseId={params.courseId}
               chapterId={params.chapterId}
-            /> */}
+            />
           </div>
           <div>
             <div className="flex items-center gap-x-2">

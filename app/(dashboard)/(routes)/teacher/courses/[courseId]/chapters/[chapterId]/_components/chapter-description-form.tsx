@@ -8,8 +8,6 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { Chapter } from "@prisma/client";
-import { Preview } from "@/components/preview";
-
 import {
   Form,
   FormControl,
@@ -21,21 +19,20 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Editor } from "@/components/editor";
 
-interface ChapterDescriptionFormProps {
+interface chapterDescriptionFormProps {
   initialData: Chapter;
   courseId: string;
   chapterId: string;
 }
-
 const formSchema = z.object({
   description: z.string().min(1),
 });
 
-export const ChapterDescriptionForm = ({
+export const DescriptionForm = ({
   initialData,
   courseId,
   chapterId,
-}: ChapterDescriptionFormProps) => {
+}: chapterDescriptionFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
 
   const toggleEdit = () => setIsEditing((current) => !current);
@@ -57,7 +54,7 @@ export const ChapterDescriptionForm = ({
         `/api/courses/${courseId}/chapters/${chapterId}`,
         values
       );
-      toast.success("Chapter updated");
+      toast.success("chapter  updated");
       toggleEdit();
       router.refresh();
     } catch {
@@ -68,7 +65,7 @@ export const ChapterDescriptionForm = ({
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Course description
+        chapter description
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing ? (
             <>Cancel</>
@@ -81,17 +78,14 @@ export const ChapterDescriptionForm = ({
         </Button>
       </div>
       {!isEditing && (
-        <div
+        <p
           className={cn(
             "text-sm mt-2",
             !initialData.description && "text-slate-500 italic"
           )}
         >
-          {/* {initialData.description && "No description"} */}
-          {initialData.description && (
-            <Preview value={initialData.description} /> // Do not show HTML TAGS
-          )}
-        </div>
+          {initialData.description || "No description"}
+        </p>
       )}
       {isEditing && (
         <Form {...form}>
@@ -100,17 +94,19 @@ export const ChapterDescriptionForm = ({
             className="space-y-4 mt-4"
           >
             <FormField
-              control={form.control}
               name="description"
-              render={({ field }) => (
+              control={form.control}
+              render={({ field: { value, onChange } }) => (
                 <FormItem>
                   <FormControl>
-                    <Editor {...field} />
+                    <Editor value={value} onChange={onChange} />
                   </FormControl>
+
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <div className="flex items-center gap-x-2">
               <Button disabled={!isValid || isSubmitting} type="submit">
                 Save

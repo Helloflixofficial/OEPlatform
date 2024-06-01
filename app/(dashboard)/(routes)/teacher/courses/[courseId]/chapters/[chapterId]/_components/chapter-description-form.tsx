@@ -1,43 +1,47 @@
 "use client";
+
 import * as z from "zod";
 import axios from "axios";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Pencil } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
 import { Chapter } from "@prisma/client";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import { Loader2, Pencil } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import { cn } from "@/lib/utils";
 import { Editor } from "@/components/editor";
+import { Preview } from "@/components/preview";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormMessage,
+  FormControl,
+} from "@/components/ui/form";
 
-interface chapterDescriptionFormProps {
-  initialData: Chapter;
+interface ChapterDescriptionFormProps {
   courseId: string;
   chapterId: string;
+  initialData: Chapter;
 }
+
 const formSchema = z.object({
-  description: z.string().min(1),
+  description: z.string().trim().min(1, "Description is required"),
 });
 
-export const DescriptionForm = ({
-  initialData,
+export const ChapterDescriptionForm = ({
   courseId,
   chapterId,
-}: chapterDescriptionFormProps) => {
+  initialData,
+}: ChapterDescriptionFormProps) => {
+  const router = useRouter();
+
   const [isEditing, setIsEditing] = useState(false);
 
-  const toggleEdit = () => setIsEditing((current) => !current);
-
-  const router = useRouter();
+  const toggleEdit = () => setIsEditing((prev) => !prev);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -54,44 +58,57 @@ export const DescriptionForm = ({
         `/api/courses/${courseId}/chapters/${chapterId}`,
         values
       );
-      toast.success("chapter  updated");
+      toast.success("Chapter updated");
       toggleEdit();
       router.refresh();
-    } catch {
+    } catch (error) {
       toast.error("Something went wrong");
     }
   };
 
   return (
-    <div className="mt-6 border bg-slate-100 rounded-md p-4">
-      <div className="font-medium flex items-center justify-between">
-        chapter description
-        <Button onClick={toggleEdit} variant="ghost">
+    <div className="relative p-4 mt-6 border rounded-md bg-slate-100">
+      {form.formState.isSubmitting && (
+        <div className="absolute top-0 right-0 flex items-center justify-center w-full h-full rounded-md bg-slate-500/20">
+          <Loader2 className="w-6 h-6 animate-spin text-sky-700" />
+        </div>
+      )}
+
+      <div className="flex items-center justify-between font-medium">
+        <span>Chapter description</span>
+
+        <Button variant="ghost" onClick={toggleEdit}>
           {isEditing ? (
             <>Cancel</>
           ) : (
             <>
-              <Pencil className="h-4 w-4 mr-2" />
+              <Pencil className="w-4 h-4 mr-2" />
               Edit description
             </>
           )}
         </Button>
       </div>
+
       {!isEditing && (
-        <p
+        <div
           className={cn(
-            "text-sm mt-2",
+            "mt-2 text-sm",
             !initialData.description && "text-slate-500 italic"
           )}
         >
-          {initialData.description || "No description"}
-        </p>
+          {initialData.description ? (
+            <Preview value={initialData.description} />
+          ) : (
+            "No description"
+          )}
+        </div>
       )}
+
       {isEditing && (
         <Form {...form}>
           <form
+            className="mt-4 space-y-4"
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 mt-4"
           >
             <FormField
               name="description"
@@ -108,7 +125,7 @@ export const DescriptionForm = ({
             />
 
             <div className="flex items-center gap-x-2">
-              <Button disabled={!isValid || isSubmitting} type="submit">
+              <Button disabled={isSubmitting || !isValid} type="submit">
                 Save
               </Button>
             </div>

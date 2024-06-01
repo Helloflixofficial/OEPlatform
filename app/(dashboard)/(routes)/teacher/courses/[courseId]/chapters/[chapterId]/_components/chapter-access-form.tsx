@@ -2,46 +2,45 @@
 
 import * as z from "zod";
 import axios from "axios";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Pencil } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
 import { Chapter } from "@prisma/client";
-import { Preview } from "@/components/preview";
-import { Checkbox } from "@/components/ui/checkbox";
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import { Loader2, Pencil } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
 
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
+  FormItem,
+  FormField,
   FormControl,
   FormDescription,
-  FormField,
-  FormItem,
 } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
-interface ChapterAccessFormFormProps {
-  initialData: Chapter;
+interface ChapterAccessFormProps {
   courseId: string;
   chapterId: string;
+  initialData: Chapter;
 }
 
 const formSchema = z.object({
   isFree: z.boolean().default(false),
 });
 
-export const ChapterAccessFormForm = ({
-  initialData,
+export const ChapterAccessForm = ({
   courseId,
   chapterId,
-}: ChapterAccessFormFormProps) => {
+  initialData,
+}: ChapterAccessFormProps) => {
+  const router = useRouter();
+
   const [isEditing, setIsEditing] = useState(false);
 
-  const toggleEdit = () => setIsEditing((current) => !current);
-
-  const router = useRouter();
+  const toggleEdit = () => setIsEditing((prev) => !prev);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -61,74 +60,83 @@ export const ChapterAccessFormForm = ({
       toast.success("Chapter updated");
       toggleEdit();
       router.refresh();
-    } catch {
+    } catch (error) {
       toast.error("Something went wrong");
     }
   };
 
   return (
-    <div className="mt-6 border bg-slate-100 rounded-md p-4">
-      <div className="font-medium flex items-center justify-between">
-        Chapters
-        <Button onClick={toggleEdit} variant="ghost">
+    <div className="relative p-4 mt-6 border rounded-md bg-slate-100">
+      {form.formState.isSubmitting && (
+        <div className="absolute top-0 right-0 flex items-center justify-center w-full h-full rounded-md bg-slate-500/20">
+          <Loader2 className="w-6 h-6 animate-spin text-sky-700" />
+        </div>
+      )}
+
+      <div className="flex items-center justify-between font-medium">
+        <span>Chapter access</span>
+
+        <Button variant="ghost" onClick={toggleEdit}>
           {isEditing ? (
             <>Cancel</>
           ) : (
             <>
-              <Pencil className="h-4 w-4 mr-2" />
-              Edit Access
+              <Pencil className="w-4 h-4 mr-2" />
+              Edit access
             </>
           )}
         </Button>
       </div>
+
       {!isEditing && (
         <div
           className={cn(
-            "text-sm mt-2",
-            !initialData.description && "text-slate-500 italic"
+            "mt-2 text-sm",
+            !initialData.isFree && "text-slate-500 italic"
           )}
         >
-          <p
-            className={cn(
-              "text-sm mt-2",
-              !initialData.isFree && "text-slate-500 italic"
-            )}
-          >
-            {initialData.isFree ? (
-              <>This Chapter is Free</>
-            ) : (
-              <>Unloack This Chapter</>
-            )}
-          </p>
+          {initialData.isFree ? (
+            <>This chapter is free for preview</>
+          ) : (
+            <>This chapter is not free</>
+          )}
         </div>
       )}
+
       {isEditing && (
         <Form {...form}>
           <form
+            className="mt-4 space-y-4"
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 mt-4"
           >
             <FormField
-              control={form.control}
               name="isFree"
+              control={form.control}
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormItem className="flex flex-row items-start p-4 space-x-3 space-y-0 border rounded-md">
                   <FormControl>
                     <Checkbox
+                      ref={field.ref}
+                      name={field.name}
                       checked={field.value}
+                      onBlur={field.onBlur}
+                      disabled={field.disabled}
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
+
                   <div className="space-y-1 leading-none">
                     <FormDescription>
-                      Chek this , If You Want To Make Changes for free
+                      Check this if you want to make this chapter free for
+                      preview
                     </FormDescription>
                   </div>
                 </FormItem>
               )}
             />
+
             <div className="flex items-center gap-x-2">
-              <Button disabled={!isValid || isSubmitting} type="submit">
+              <Button disabled={isSubmitting || !isValid} type="submit">
                 Save
               </Button>
             </div>

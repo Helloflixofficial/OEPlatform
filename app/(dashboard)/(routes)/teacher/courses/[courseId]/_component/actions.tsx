@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ConfirmModel } from "@/components/confirm-model";
+import { ConfirmModal } from "@/components/models/confirm-model";
 interface ActionsProps {
   courseId: string;
   disabled: boolean;
@@ -69,11 +69,11 @@ export const Actions = ({ courseId, disabled, isPublished }: ActionsProps) => {
       >
         {isPublished ? "Unpublish" : "Publish"}
       </Button>
-      <ConfirmModel onConfirm={onDelete}>
+      <ConfirmModal onConfirm={onDelete}>
         <Button size="sm" disabled={isLoading}>
           <Trash className="w-4 h-4" />
         </Button>
-      </ConfirmModel>
+      </ConfirmModal>
     </div>
   );
 };

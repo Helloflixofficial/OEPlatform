@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ConfirmModal } from "@/components/models/confirm-model";
+import { ConfirmModal } from "@/components/modals/confirm-model";
 interface ActionsProps {
   courseId: string;
   disabled: boolean;

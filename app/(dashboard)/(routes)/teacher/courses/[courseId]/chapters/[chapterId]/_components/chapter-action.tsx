@@ -1,72 +1,93 @@
 "use client";
-import { ConfirmModal } from "@/components/models/confirm-model";
-import { Button } from "@/components/ui/button";
+
 import axios from "axios";
-import { Trash } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
-interface chapterActionProps {
-  disabled: boolean;
+import { Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+import { Button } from "@/components/ui/button";
+import { ConfirmModal } from "@/components/modals/confirm-model";
+
+interface ChapterActionsProps {
   courseId: string;
   chapterId: string;
+  disabled: boolean;
   isPublished: boolean;
 }
+
 export const ChapterActions = ({
-  disabled,
   courseId,
+  disabled,
   chapterId,
   isPublished,
-}: chapterActionProps) => {
+}: ChapterActionsProps) => {
   const router = useRouter();
+
   const [isLoading, setIsLoading] = useState(false);
 
-  const onClick = async () => {
+  const togglePublish = async () => {
     try {
-      if (!isPublished) {
+      setIsLoading(true);
+
+      if (isPublished) {
         await axios.patch(
           `/api/courses/${courseId}/chapters/${chapterId}/unpublish`
         );
-        toast.success("chapter unpublisded sucsfullly");
       } else {
         await axios.patch(
           `/api/courses/${courseId}/chapters/${chapterId}/publish`
         );
-        toast.success("chapter publisded sucsfullly");
       }
-    } catch (error) {
-      toast.error("something is wrong");
+
+      router.refresh();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onClick = async () => {
+    toast.promise(togglePublish(), {
+      loading: "Updating chapter...",
+      error: "Something went wrong",
+      success: isPublished ? "Chapter unpublished" : "Chapter published",
+    });
+  };
+
+  const removeChapter = async () => {
+    try {
+      setIsLoading(true);
+      await axios.delete(`/api/courses/${courseId}/chapters/${chapterId}`);
+
+      router.refresh();
+      router.push(`/teacher/courses/${courseId}`);
     } finally {
       setIsLoading(false);
     }
   };
 
   const onDelete = async () => {
-    try {
-      setIsLoading(true);
-      await axios.delete(`/api/courses/${courseId}/chapters/${chapterId}`);
-      toast.success("chapter deleted successfullly");
-      router.refresh();
-      router.push(`/teacher/courses/${courseId}`);
-    } catch (error) {
-      toast.error("something is wrong");
-    } finally {
-      setIsLoading(false);
-    }
+    toast.promise(removeChapter(), {
+      loading: "Deleting chapter...",
+      success: "Chapter deleted",
+      error: "Something went wrong",
+    });
   };
+
   return (
     <div className="flex items-center gap-x-2">
       <Button
+        size="sm"
+        variant="outline"
         onClick={onClick}
         disabled={disabled || isLoading}
-        variant="outline"
-        size="sm"
       >
-        {isPublished ? "unPublish" : "publish"}
+        {isPublished ? "Unpublish" : "Publish"}
       </Button>
+
       <ConfirmModal onConfirm={onDelete}>
         <Button size="sm" disabled={isLoading}>
-          <Trash className="h-4 w-4" />
+          <Trash className="w-4 h-4" />
         </Button>
       </ConfirmModal>
     </div>

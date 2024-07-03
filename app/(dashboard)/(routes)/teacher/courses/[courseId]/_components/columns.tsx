@@ -1,23 +1,18 @@
 "use client";
+import { Course } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
-export type Payment = {
-  id: string;
-  amount: number;
-  status: "pending" | "processing" | "success" | "failed";
-  email: string;
-};
 
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<Course>[] = [
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "tittle",
+    header: "Tittle",
   },
   {
-    accessorKey: "email",
-    header: "Email",
+    accessorKey: "price",
+    header: "Price",
   },
   {
-    accessorKey: "amount",
-    header: "Amount",
+    accessorKey: "isPublished",
+    header: "Published",
   },
 ];

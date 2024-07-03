@@ -2,26 +2,28 @@ import { Button } from "@/components/ui/button";
 import { columns } from "./[courseId]/_components/columns";
 import { DataTable } from "./[courseId]/_components/data-table";
 import Link from "next/link";
-async function getData(): Promise<any[]> {
-  return [
-    {
-      id: "728ed52f",
-      amount: 100,
-      status: "pending",
-      email: "hellolixofficial@gmail.com",
-    },
-  ];
-}
-
+import { auth } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
+import { db } from "@/lib/db";
 const TeacherPage = async () => {
-  const data = await getData();
-
+  const { userId } = auth();
+  if (!userId) {
+    return redirect("/");
+  }
+  const courses = await db.course.findMany({
+    where: {
+      userId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
   return (
     <div className="p-6">
       <Link href="/teacher/create">
         <Button>Button</Button>
       </Link>
-      <DataTable columns={columns} data={data} />
+      <DataTable columns={columns} data={courses} />
     </div>
   );
 };

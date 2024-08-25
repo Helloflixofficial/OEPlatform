@@ -4,9 +4,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  // directUrl = env("DIRECT_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Course {
@@ -20,10 +20,10 @@ model Course {
   categoryId  String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-  category    Category?    @relation(fields: [categoryId], references: [id])
-  chapters    Chapter[]
   attachments Attachment[]
+  chapters    Chapter[]
   purchases   Purchase[]
+  category    Category?    @relation(fields: [categoryId], references: [id])
 
   @@index([categoryId])
   @@map("title")
@@ -58,8 +58,8 @@ model Chapter {
   courseId     String
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
-  muxData      MuxData?
   course       Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  muxData      MuxData?
   userProgress UserProgress[]
 
   @@index([courseId])
@@ -103,7 +103,7 @@ model StripeCustomer {
   userId           String   @unique
   stripeCustomerId String   @unique
   createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  updatedAt        DateTime @default(now())
 }
 
 model access_connection {

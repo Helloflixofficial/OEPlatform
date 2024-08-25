@@ -89,7 +89,7 @@ CREATE TABLE "StripeCustomer" (
     "userId" TEXT NOT NULL,
     "stripeCustomerId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "StripeCustomer_pkey" PRIMARY KEY ("id")
 );
@@ -466,6 +466,9 @@ CREATE TABLE "welcome_urls" (
 
     CONSTRAINT "welcome_urls_pkey" PRIMARY KEY ("id","chat_id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "title_id_key" ON "title"("id");
 
 -- CreateIndex
 CREATE INDEX "title_categoryId_idx" ON "title"("categoryId");

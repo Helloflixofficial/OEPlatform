@@ -9,15 +9,15 @@ import {
 
 import { db } from "@/lib/db";
 import { Banner } from "@/components/banner";
-import { Actions } from "./_component/actions";
+import { Actions } from "./_components/actions";
 import { IconBadge } from "@/components/icon-badge";
-import { TitleForm } from "./_component/title-form";
-import { ImageForm } from "./_component/image-form";
-import { PriceForm } from "./_component/price-form";
-import { CategoryForm } from "./_component/category-form";
-import { ChaptersForm } from "./_component/chapters-form";
-import { AttachmentForm } from "./_component/attachment-form";
-import { DescriptionForm } from "./_component/description-form";
+import { TitleForm } from "./_components/title-form";
+import { ImageForm } from "./_components/image-form";
+import { PriceForm } from "./_components/price-form";
+import { CategoryForm } from "./_components/category-form";
+import { ChaptersForm } from "./_components/chapters-form";
+import { AttachmentForm } from "./_components/attachment-form";
+import { DescriptionForm } from "./_components/description-form";
 
 const CourseIdPage = async ({
   params,

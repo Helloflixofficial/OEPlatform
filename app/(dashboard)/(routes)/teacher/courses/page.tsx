@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { columns } from "./[courseId]/_components/columns";
-import { DataTable } from "./[courseId]/_components/data-table";
+import { columns } from "./[courseId]/_component/columns";
+import { DataTable } from "./[courseId]/_component/data-table";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs";
 import { redirect } from "next/navigation";

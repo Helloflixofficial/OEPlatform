@@ -8,8 +8,8 @@ async function main() {
     { name: "Painting" },
     { name: "Photography" },
     { name: "Engineering" },
-    { name: "Computer Science" },
-    { name: "Website Development" },
+    { name: "Computer_Science" },
+    { name: "Website_Development" },
   ];
   console.log("working gooood");
   for (const category of categories) {

@@ -1,17 +1,17 @@
-"use client";
+// "use client";
 import { db } from "@/lib/db";
-import { Categories } from "./_components/Categories";
-const search = () => async () => {
-  const category = await db.category.findMany({
+import  { Categories } from "./_components/Categories";
+const searchPage =  async () => {
+  const categories = await db.category.findMany({
     orderBy: {
-      name: "asc",
+      name: "asc", 
     },
   });
   return (
     <div className="p-6">
-      <Categories items={category} />
+      <Categories items={categories} />
     </div>
   );
 };
 
-export default search;
+export default searchPage;

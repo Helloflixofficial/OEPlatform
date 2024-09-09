@@ -9,7 +9,7 @@ const searchPage =  async () => {
   });
   return (
     <div className="p-6">
-      <Categories items={categories} />
+      <Categories items={categories} /><table></table>
     </div>
   );
 };

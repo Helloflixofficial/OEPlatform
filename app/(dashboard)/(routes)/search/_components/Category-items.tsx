@@ -26,7 +26,9 @@ const url = queryString.stringifyUrl({
   query: {
     title : currenTitle,
     categoryId : isSelected ? null : value,
-  }
+    
+  },
+  
 },{skipNull:true, skipEmptyString: true})
 router.push(url);
 }

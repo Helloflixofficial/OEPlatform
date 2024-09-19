@@ -1,6 +1,6 @@
-// "use client";
+
 import { db } from "@/lib/db";
-import  { Categories } from "./_components/Categories";
+import { Categories } from "./_components/Categories";
 import { Searchinput } from "@/components/navbarroutes/search-input";
 import { getCourses } from "@/Actions/get-courses";
 import { auth } from "@clerk/nextjs";
@@ -36,10 +36,10 @@ export const SearchPage = async ({ searchParams }: SearchPageProps) => {
 
   return (
     <>
-    <div className="px-6 pt-6 md:hidden md:mb-0 block">
-      <Searchinput />
-    </div> 
-    <div className="p-6 space-y-4">
+      <div className="px-6 pt-6 md:hidden md:mb-0 block">
+        <Searchinput />
+      </div>
+      <div className="p-6 space-y-4">
         <Categories items={categories} />
         <CoursesList items={courses} />
 

@@ -1,11 +1,12 @@
 import { auth } from '@clerk/nextjs'
 import { redirect } from 'next/navigation'
+
 import { db } from '@/lib/db'
 import { getProgress } from '@/Actions/get-progress'
-import { CourseSidebar } from './_components/course-sidebar'
 import { CourseNavbar } from './_components/course-navbar'
+import { CourseSidebar } from './_components/course-sidebar'
 
-export default async function courseLayout({
+export default async function CourseLayout({
     params,
     children,
 }: {
@@ -40,8 +41,8 @@ export default async function courseLayout({
     })
 
     if (!course) return redirect('/')
-    const progressCount = await getProgress(userId, course.id)
 
+    const progressCount = await getProgress(userId, course.id)
 
     return (
         <div className="h-full">

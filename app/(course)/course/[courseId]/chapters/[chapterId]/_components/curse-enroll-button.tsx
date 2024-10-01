@@ -4,7 +4,7 @@ import axios from 'axios'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 
-import { formatPrice } from '@/lib/format'
+import { formatPrice } from '@/lib/formet'
 import { Button } from '@/components/ui/button'
 
 interface CurseEnrollButtonProps {

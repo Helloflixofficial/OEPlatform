@@ -38,6 +38,7 @@ export const CurseEnrollButton = ({
     })
   }
 
+
   return (
     <Button
       size="sm"

@@ -2,19 +2,16 @@ import { db } from '@/lib/db';
 import { Category, Chapter, Course } from '@prisma/client';
 import { getProgress } from '@/Actions/get-progress';
 
-
 type CourseWithProcessWithCategory = Course & {
     category: Category;
     chapters: Chapter[];
-    Progress: Number | null;
-
+    Progress: number | null;
 }
 
 type DashboardProps = {
     completedCourses: CourseWithProcessWithCategory[];
     coursesInProgress: CourseWithProcessWithCategory[];
 }
-
 
 export const getDashboardCourses = async (userId: string): Promise<DashboardProps> => {
     try {
@@ -39,6 +36,15 @@ export const getDashboardCourses = async (userId: string): Promise<DashboardProp
         const courses = PurchaseCourses.map((purchase) => purchase.course) as CourseWithProcessWithCategory[];
         for (let course of courses) {
             const Progress = await getProgress(userId, course.id);
+            course["Progress"] = Progress;
+        }
+
+        const completedCourses = courses.filter((course) => course.Progress === 100);
+        const coursesInProgress = courses.filter((course) => (course.Progress ?? 0) < 100);
+
+        return {
+            completedCourses,
+            coursesInProgress,
         }
     } catch (error) {
         console.log("[Get_dashboard_error]", error);

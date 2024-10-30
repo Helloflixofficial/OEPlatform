@@ -1,4 +1,3 @@
-import courseIdPage from "@/app/(course)/course/[courseId]/page";
 import { db } from "@/lib/db";
 import { Course, Purchase } from "@prisma/client";
 

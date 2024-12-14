@@ -1,8 +1,8 @@
-'use client'
+'use client';
 
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts'
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
+import { Card } from '@/components/ui/card';
 
-import { Card } from '@/components/ui/card'
 
 interface ChartProps {
     data: {

@@ -1,4 +1,5 @@
 import { Course, Category } from '@prisma/client'
+
 import { CourseCard } from '@/components/navbarroutes/course-card'
 
 type CourseWithProgressWithCategory = Course & {

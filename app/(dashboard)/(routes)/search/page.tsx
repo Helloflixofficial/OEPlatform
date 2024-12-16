@@ -1,12 +1,11 @@
+import { auth } from '@clerk/nextjs'
+import { redirect } from 'next/navigation'
 
-import { db } from "@/lib/db";
-import { Categories } from "./_components/Categories";
-import { Searchinput } from "@/components/navbarroutes/search-input";
-import { getCourses } from "@/Actions/get-courses";
-import { auth } from "@clerk/nextjs";
-import { redirect } from "next/navigation";
-import { CoursesList } from "@/components/navbarroutes/courses-list";
-
+import { db } from '@/lib/db'
+import { getCourses } from '@/Actions/get-courses'
+import { Categories } from './_components/Categories'
+import { CoursesList } from '@/components/navbarroutes/courses-list'
+import { Searchinput } from '@/components/navbarroutes/search-input'
 
 interface SearchPageProps {
   searchParams: {
@@ -15,7 +14,7 @@ interface SearchPageProps {
   }
 }
 
-export const SearchPage = async ({ searchParams }: SearchPageProps) => {
+const SearchPage = async ({ searchParams }: SearchPageProps) => {
   const { userId } = auth()
 
   if (!userId) return redirect('/')
@@ -26,9 +25,6 @@ export const SearchPage = async ({ searchParams }: SearchPageProps) => {
     },
   })
 
-
-
-
   const courses = await getCourses({
     userId,
     ...searchParams,
@@ -36,17 +32,16 @@ export const SearchPage = async ({ searchParams }: SearchPageProps) => {
 
   return (
     <>
-      <div className="px-6 pt-6 md:hidden md:mb-0 block">
+      <div className="block px-6 pt-6 md:hidden md:mb-0">
         <Searchinput />
       </div>
+
       <div className="p-6 space-y-4">
         <Categories items={categories} />
         <CoursesList items={courses} />
-
       </div>
     </>
-  );
-};
-
+  )
+}
 
 export default SearchPage

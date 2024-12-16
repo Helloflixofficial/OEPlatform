@@ -1,23 +1,21 @@
-import { Category, Course } from "@prisma/client";
-import { db } from "@/lib/db"
-import { getProgress } from "@/Actions/get-progress";
+import { Category, Course } from '@prisma/client'
+
+import { db } from '@/lib/db'
+import { getProgress } from '@/Actions/get-progress'
 
 type CourseWithProgressWithCategory = Course & {
+    progress: number | null
     category: Category | null
     chapters: {
         id: string
     }[]
-    Progress: number | null
 }
-
 
 type GetCourses = {
-    userId: string;
-    title?: string;
-    categoryId: string
-
+    userId: string
+    title?: string
+    categoryId?: string
 }
-
 
 export const getCourses = async ({
     title,
@@ -63,7 +61,7 @@ export const getCourses = async ({
                     if (course.purchases.length === 0) {
                         return {
                             ...course,
-                            Progress: null,
+                            progress: null,
                         }
                     }
 
@@ -71,17 +69,14 @@ export const getCourses = async ({
 
                     return {
                         ...course,
-                        Progress: progressPercentage,
+                        progress: progressPercentage,
                     }
                 }),
             )
 
         return coursesWithProgress
-
     } catch (error) {
-        console.log("[]GOT THE ERROR", error)
-        return [];
-
+        console.error('[GET_COURSES]', error)
+        return []
     }
-
 }

@@ -23,6 +23,9 @@ git branch -M main
 git push -u origin main
 18:8-->
 
+
+<!-- npx ts-node seed.ts -->
+
 <!-- Website usefull for this projects and uploding data and information  -->
 http://localhost:3000/ for Basic Need
 https://ui.shadcn.com/ for UI

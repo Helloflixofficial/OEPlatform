@@ -1,6 +1,5 @@
 import { db } from "@/lib/db";
 import { Course, Purchase } from "@prisma/client";
-import { unstable_cache } from 'next/cache'
 
 type PurchaseWithCourse = Purchase & {
     course: Course;
@@ -19,44 +18,40 @@ const groupByCourse = (purchases: PurchaseWithCourse[]) => {
     return grouped;
 }
 
-export const getAnalytics = unstable_cache(
-    async (userId: string) => {
-        try {
-            const purchases = await db.purchase.findMany({
-                where: {
-                    course: {
-                        userId: userId,
-                    }
-                },
-                include: {
-                    course: true,
+export const getAnalytics = async (userId: string) => {
+    try {
+        const purchases = await db.purchase.findMany({
+            where: {
+                course: {
+                    userId: userId,
                 }
-            });
-
-            const groupedEarning = groupByCourse(purchases);
-            const data = Object.entries(groupedEarning).map(([courseTitle, total]) => ({
-                name: courseTitle,
-                total: total,
-            }));
-
-            const totalRevenue = data.reduce((acc, curr) => acc + curr.total, 0);
-            const totalSales = purchases.length;
-
-            return {
-                data,
-                totalRevenue,
-                totalSales
+            },
+            include: {
+                course: true,
             }
+        });
 
-        } catch (error) {
-            console.log("GET_ANALYTICS", error);
-            return {
-                data: [],
-                totalRevenue: 0,
-                totalSales: 0,
-            }
+        const groupedEarning = groupByCourse(purchases);
+        const data = Object.entries(groupedEarning).map(([courseTitle, total]) => ({
+            name: courseTitle,
+            total: total,
+        }));
+
+        const totalRevenue = data.reduce((acc, curr) => acc + curr.total, 0);
+        const totalSales = purchases.length;
+
+        return {
+            data,
+            totalRevenue,
+            totalSales
         }
-    },
-    ['get-analytics'],
-    { revalidate: 300 } // cache for 5 minutes
-)
+
+    } catch (error) {
+        console.log("GET_ANALYTICS", error);
+        return {
+            data: [],
+            totalRevenue: 0,
+            totalSales: 0,
+        }
+    }
+}

@@ -1,5 +1,5 @@
 "use client";
-import { BarChart, Compass, Layout, List } from "lucide-react";
+import { BarChart, Compass, Layout, List, Video } from "lucide-react";
 import { SidebarItems } from "./sidebar-items";
 import { usePathname } from "next/navigation";
 
@@ -14,6 +14,11 @@ const RestRoutes = [
     label: "Search",
     href: "/search",
   },
+  {
+    icon: Video,
+    label: "ShortMeet",
+    href: "/teacher/meet",
+  },
 ];
 
 const TeacherRoutes = [
@@ -26,6 +31,11 @@ const TeacherRoutes = [
     icon: BarChart,
     label: "analytics",
     href: "/teacher/analytics",
+  },
+  {
+    icon: Video,
+    label: "ShortMeet",
+    href: "/teacher/meet",
   },
 ];
 

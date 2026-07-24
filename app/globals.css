@@ -94,4 +94,4 @@
   font-size: 16px !important;
 }
 
-@import "~@uploadthing/react/styles.css";
+/* UploadThing styles loaded via CDN in layout or via plugin */

@@ -7,6 +7,11 @@ const nextConfig = {
     formats: ['image/webp', 'image/avif'],
   },
   swcMinify: true,
+  transpilePackages: [
+    "@livekit/components-react",
+    "@livekit/components-styles",
+    "@livekit/components-core",
+  ],
 }
 
 module.exports = nextConfig

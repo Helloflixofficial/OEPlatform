@@ -2,52 +2,67 @@
 import { usePathname, useRouter } from "next/navigation";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-interface SidebarItemsprops {
+
+interface SidebarItemsProps {
   icon: LucideIcon;
   label: string;
   href: string;
+  collapsed?: boolean;
 }
-//this down code is imported from the sidebar-routes page
-export const SidebarItems = ({
-  icon: Icon,
-  label,
-  href,
-}: SidebarItemsprops) => {
-  const Pathname = usePathname();
+
+export const SidebarItems = ({ icon: Icon, label, href, collapsed = false }: SidebarItemsProps) => {
+  const pathname = usePathname();
   const router = useRouter();
 
   const isActive =
-    (Pathname === "/" && href === "/") ||
-    Pathname === href ||
-    Pathname?.startsWith(`${href}/`);
-
-  const onClick = () => {
-    router.push(href);
-  };
+    (pathname === "/" && href === "/") ||
+    pathname === href ||
+    pathname?.startsWith(`${href}/`);
 
   return (
     <button
-      onClick={onClick}
+      onClick={() => router.push(href)}
       type="button"
+      title={collapsed ? label : undefined}
       className={cn(
-        "w-full flex items-center gap-x-2 text-slate-500 text-sm font-[500] pl-6 transition-all hover:text-slate-600 hover:bg-slate-300/20",
-        isActive &&
-          "text-sky-700 bg-sky-200/20 hover:bg-sky-200/20 hover:text-sky-700"
+        "relative w-full flex items-center transition-all duration-200 group",
+        "hover:bg-slate-200/40",
+        collapsed ? "justify-center h-12" : "gap-x-3 pl-5 pr-3 h-12",
+        isActive && "bg-sky-50 hover:bg-sky-100/60 text-sky-700"
       )}
     >
-      <div className="flex items-center gap-x-2 py-4">
-        <Icon
-          size={22}
-          className={cn("text-slate-500", isActive && "text-sky-700")}
-        />
-        {label}
-      </div>
-      <div
+      {/* Active left bar */}
+      {isActive && (
+        <span className="absolute left-0 top-2 bottom-2 w-[3px] bg-sky-600 rounded-r-full" />
+      )}
+
+      {/* Icon */}
+      <Icon
+        size={20}
         className={cn(
-          " ml-auto opacity-0 border-2 border-sky-700  h-full translate-all",
-          isActive && "opacity-100"
+          "flex-shrink-0 transition-colors",
+          isActive ? "text-sky-600" : "text-slate-500 group-hover:text-slate-700"
         )}
-      ></div>
+      />
+
+      {/* Label — only rendered (not just hidden) when not collapsed to avoid layout issues */}
+      {!collapsed && (
+        <span className={cn(
+          "text-sm font-medium truncate transition-colors",
+          isActive ? "text-sky-700" : "text-slate-600 group-hover:text-slate-800"
+        )}>
+          {label}
+        </span>
+      )}
+
+      {/* Tooltip when collapsed */}
+      {collapsed && (
+        <div className="absolute left-full ml-2 z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+          <div className="bg-gray-900 text-white text-xs font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap shadow-lg">
+            {label}
+          </div>
+        </div>
+      )}
     </button>
   );
 };

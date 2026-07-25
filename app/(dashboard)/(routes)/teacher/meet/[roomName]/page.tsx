@@ -5,7 +5,11 @@ import { useAuth } from "@clerk/nextjs";
 import { Loader2, Video, ArrowLeft, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { MeetRoom } from "@/components/meet/MeetRoom";
+import dynamic from "next/dynamic";
+const MeetRoom = dynamic(
+  () => import("@/components/meet/MeetRoom").then(m => ({ default: m.MeetRoom })),
+  { ssr: false, loading: () => <div className="flex items-center justify-center h-screen"><Loader2 className="h-8 w-8 animate-spin text-sky-500" /></div> }
+);
 
 interface PageProps {
   params: { roomName: string };

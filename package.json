@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -H 0.0.0.0",
-    "dev:https": "next dev -H 0.0.0.0 --experimental-https",
+    "dev": "cross-env NODE_OPTIONS=--max-old-space-size=1536 next dev -H 0.0.0.0 --turbo",
+    "dev:https": "next dev -H 0.0.0.0 --experimental-https --turbo",
     "dev:tunnel": "npx cloudflared@latest tunnel --url http://localhost:3000",
     "build": "next build",
     "start": "next start",
@@ -70,6 +70,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.1.0",
+    "cross-env": "^10.1.0",
     "prisma": "^5.17.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"

@@ -94,4 +94,50 @@
   font-size: 16px !important;
 }
 
-/* UploadThing styles loaded via CDN in layout or via plugin */
+/* ── Performance: only GPU-composited properties in transitions ─────────── */
+* {
+  /* Prevent layout thrash from hover effects on non-interactive elements */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Images: crisp scaling, no layout shift */
+img {
+  image-rendering: auto;
+  content-visibility: auto;
+}
+
+/* Scrollbar utility — hide scrollbar but keep scroll behaviour */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Smooth scrolling site-wide */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Respect OS reduced-motion preference — kill all CSS animations */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Sidebar transition: only transition width (avoids repainting all children) */
+.sidebar-transition {
+  transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: width;
+}
+
+/* Card hover: use transform+shadow (composited) not margin/padding */
+.card-hover {
+  transition: transform 200ms ease, box-shadow 200ms ease;
+  will-change: transform;
+}
+

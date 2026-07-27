@@ -342,13 +342,15 @@ export function SearchClient({
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-gray-50">
 
-      {/* ── DESKTOP/TABLET STATIC SIDEBAR (lg+) ────────────────────────────── */}
-      <aside className="hidden lg:flex flex-col w-56 flex-shrink-0 border-r border-gray-200 bg-white sticky top-[80px] self-start min-h-[calc(100vh-80px)]">
-        <FilterPanel
-          {...filterPanelProps}
-        />
+      {/* ── DESKTOP SIDEBAR (lg+) ────────────────────────────────────────── */}
+      <aside className="hidden lg:block w-60 flex-shrink-0 border-r border-gray-200 bg-white">
+        <div className="sticky top-[80px] h-[calc(100vh-80px)] overflow-y-auto">
+          <FilterPanel
+            {...filterPanelProps}
+          />
+        </div>
       </aside>
 
       {/* ── MOBILE FILTER DRAWER (< lg) ────────────────────────────────────── */}
@@ -383,7 +385,7 @@ export function SearchClient({
       )}
 
       {/* ── MAIN CONTENT ───────────────────────────────────────────────────── */}
-      <main className="flex-1 min-w-0 px-3 sm:px-5 pt-4 sm:pt-5 pb-12">
+      <main className="flex-1 min-w-0 px-3 sm:px-6 pt-4 sm:pt-5 pb-12">
 
         {/* Category pills (horizontal scroll, all screen sizes) */}
         <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-4 scrollbar-hide -mx-1 px-1">

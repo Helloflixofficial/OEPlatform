@@ -12,9 +12,11 @@ const nextConfig = {
   },
 
   // ── Compiler ─────────────────────────────────────────────────────────────
-  compiler: {
-    removeConsole: process.env.NODE_ENV === 'production', // strip console.* in prod
-  },
+  ...(process.env.NODE_ENV === 'production' && {
+    compiler: {
+      removeConsole: true, // strip console.* in prod
+    },
+  }),
 
   // ── Experimental ─────────────────────────────────────────────────────────
   experimental: {

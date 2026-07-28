@@ -1,9 +1,10 @@
 'use client'
 import axios from 'axios'
 import { useState } from 'react'
+import type { CSSProperties } from 'react'
 import { toast } from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
-import { Loader2, Lock } from 'lucide-react'
+import { AlertCircle, Loader2, Lock } from 'lucide-react'
 import MuxPlayer from '@mux/mux-player-react'
 import { cn } from '@/lib/utils'
 import { useConfettiStore } from '@/hooks/use-confetti-store'
@@ -30,47 +31,13 @@ export const VideoPlayer = ({
   const router = useRouter()
   const { onOpen } = useConfettiStore()
   const [isReady, setIsReady] = useState(false)
-  const confetti = useConfettiStore();
-  const onEnd = async () => {
-    try {
-      if (completeOnEnd) {
-        await axios.put(`/api/courses/${courseId}/chaters/${chapterId}}/progress`, {
-          isCompleted: true,
-        });
-
-        if (!nextChapterId) {
-          confetti.onOpen();
-        }
-
-        toast.success("Progress Updated sire")
-        router.refresh();
-        if (nextChapterId) {
-          router.push(`/courses/${courseId}/chapters/${chapterId}/${nextChapterId}`)
-        }
-
-      }
-    } catch (error) {
-      toast.error("something went Wrong");
-    }
-  }
-
-
-
-
   const onEnded = async () => {
     try {
       toast.loading('Updating progress...', {
         id: 'progress-toast',
       })
 
-      if (completeOnEnd) {
-        await axios.put(
-          `/api/courses/${courseId}/chapters/${chapterId}/progress`,
-          {
-            isCompleted: true,
-          },
-        )
-      }
+      if (completeOnEnd) await axios.put(`/api/courses/${courseId}/chapters/${chapterId}/progress`, { isCompleted: true })
 
       if (!nextChapterId) {
         toast.success('Course completed!')
@@ -80,9 +47,7 @@ export const VideoPlayer = ({
       toast.success('Progress updated')
       router.refresh()
 
-      if (nextChapterId) {
-        router.push(`/courses/${courseId}/chapters/${nextChapterId}`)
-      }
+      if (nextChapterId) router.push(`/course/${courseId}/chapters/${nextChapterId}`)
     } catch (error) {
       toast.error('Something went wrong')
     } finally {
@@ -91,7 +56,7 @@ export const VideoPlayer = ({
   }
 
   return (
-    <div className="relative aspect-video">
+    <div className="relative aspect-video overflow-hidden rounded-xl bg-slate-950 ring-1 ring-white/10 sm:rounded-2xl">
       {!isReady && !isLocked && (
         <div className="absolute inset-0 flex items-center justify-center bg-slate-800">
           <Loader2 className="w-8 h-8 animate-spin text-secondary" />
@@ -105,15 +70,24 @@ export const VideoPlayer = ({
         </div>
       )}
 
-      {!isLocked && (
+      {!isLocked && playbackId && (
         <MuxPlayer
           title={title}
-          className={cn(!isReady && 'hidden')}
+          className={cn('absolute inset-0 block h-full w-full', !isReady && 'hidden')}
+          style={{ '--media-object-fit': 'contain', '--media-object-position': 'center' } as CSSProperties}
           onCanPlay={() => setIsReady(true)}
-          onEnded={onEnd}
+          onEnded={onEnded}
           autoPlay
+          playsInline
           playbackId={playbackId}
         />
+      )}
+
+      {!isLocked && !playbackId && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-slate-900 text-slate-300">
+          <AlertCircle className="h-8 w-8 text-amber-400" />
+          <p className="text-sm">This lesson video is not available yet.</p>
+        </div>
       )}
     </div>
   )

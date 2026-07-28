@@ -34,32 +34,23 @@ export const CourseSidebarItem = ({
       type="button"
       onClick={onClick}
       className={cn(
-        'flex items-center gap-x-2 text-slate-500 text-sm font-[500] pl-6 transition-all hover:text-slate-600 hover:bg-slate-300/20',
+        'group flex w-full items-start gap-x-2 border-l-2 border-transparent px-5 py-3 text-left text-sm font-medium text-slate-600 transition-all hover:bg-slate-50 hover:text-slate-900',
         isActive &&
-        'bg-slate-300/20 text-slate-700 hover:bg-slate-200/20 hover:text-slate-700',
-        isCompleted && 'text-emerald-700 hover:bg-emerald-700',
-        isCompleted && isActive && 'bg-emerald-200/20',
+        'border-sky-600 bg-sky-50 text-slate-900',
+        isCompleted && 'text-emerald-700',
       )}
     >
-      <div className="flex items-center py-4 gap-x-2">
+      <div className="flex min-w-0 items-start gap-x-2">
         <Icon
-          size={22}
+          size={18}
           className={cn(
-            'text-slate-500',
-            isActive && 'text-slate-700',
+            'mt-0.5 flex-shrink-0 text-slate-400',
+            isActive && 'text-sky-700',
             isCompleted && 'text-emerald-700',
           )}
         />
-        {label}
+        <span className="line-clamp-2 leading-5">{label}</span>
       </div>
-
-      <div
-        className={cn(
-          'ml-auto opacity-0 border-2 border-slate-700 h-full transition-all',
-          isActive && 'opacity-100',
-          isCompleted && 'border-emerald-700',
-        )}
-      />
     </button>
   )
 }

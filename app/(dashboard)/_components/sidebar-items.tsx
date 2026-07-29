@@ -25,18 +25,18 @@ export const SidebarItems = ({ icon: Icon, label, href, collapsed = false }: Sid
       type="button"
       title={collapsed ? label : undefined}
       className={cn(
-        "group relative mx-2 flex h-12 w-[calc(100%-1rem)] items-center rounded-2xl transition-all duration-200",
+        "group relative mx-2 flex h-12 w-[calc(100%-1rem)] items-center rounded-xl transition-all duration-200",
         collapsed ? "justify-center" : "gap-x-3 px-3",
         isActive
-          ? "bg-gradient-to-r from-[#7357ee] to-[#6048d9] text-white shadow-[0_8px_18px_rgba(105,79,224,0.2)]"
-          : "text-slate-600 hover:bg-white/85 hover:text-slate-900 hover:shadow-sm"
+          ? "bg-slate-900 text-white shadow-[0_8px_18px_rgba(15,23,42,0.16)]"
+          : "text-slate-600 hover:bg-slate-50 hover:text-slate-950 hover:shadow-sm"
       )}
     >
-      {isActive && <span className="absolute -left-2 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-violet-500" />}
+      {isActive && <span className="absolute -left-2 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-slate-900" />}
 
       <span className={cn(
-        "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl transition-all",
-        isActive ? "bg-white/15 text-white" : "bg-slate-100/80 text-slate-500 group-hover:bg-violet-50 group-hover:text-violet-600"
+        "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg transition-all",
+        isActive ? "bg-white/15 text-white" : "bg-slate-100/80 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-800"
       )}>
         <Icon size={18} className="transition-colors" />
       </span>
@@ -45,7 +45,7 @@ export const SidebarItems = ({ icon: Icon, label, href, collapsed = false }: Sid
       {!collapsed && (
         <span className={cn(
           "truncate text-[13px] font-semibold transition-colors",
-          isActive ? "text-white" : "text-slate-600 group-hover:text-slate-900"
+          isActive ? "text-white" : "text-slate-600 group-hover:text-slate-950"
         )}>
           {label}
         </span>

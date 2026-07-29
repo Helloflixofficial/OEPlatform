@@ -1,14 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { BookOpen, Sparkles } from "lucide-react";
 import { SidebarRoutes } from "./sidebar-routes";
 
 const BrandMark = ({ expanded }: { expanded: boolean }) => (
   <div className={`flex items-center ${expanded ? "gap-3" : "justify-center"}`}>
-    <div className="relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#8b5cf6] via-[#7357ee] to-[#4f46e5] shadow-[0_8px_20px_rgba(111,82,239,0.28)]">
-      <span className="absolute inset-1 rounded-xl border border-white/20" />
+    <div className="relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-900 shadow-[0_8px_18px_rgba(15,23,42,0.16)]">
+      <span className="absolute inset-1 rounded-xl border border-white/15" />
       <svg width="24" height="24" viewBox="0 0 40 40" fill="none" aria-hidden="true">
         <path
           fillRule="evenodd" clipRule="evenodd"
@@ -16,12 +15,12 @@ const BrandMark = ({ expanded }: { expanded: boolean }) => (
           fill="white"
         />
       </svg>
-      <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#fbf8f3] bg-emerald-400" />
+      <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />
     </div>
     {expanded && (
       <div className="min-w-0">
         <p className="truncate text-[15px] font-extrabold tracking-tight text-slate-900">OE Platform</p>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-violet-500">Learn better</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Learn better</p>
       </div>
     )}
   </div>
@@ -30,25 +29,23 @@ const BrandMark = ({ expanded }: { expanded: boolean }) => (
 const SidebarFooter = ({ expanded }: { expanded: boolean }) => (
   <div className={`relative flex-shrink-0 p-3 ${expanded ? "" : "flex justify-center"}`}>
     {expanded ? (
-      <div className="relative overflow-hidden rounded-2xl border border-violet-100 bg-gradient-to-br from-violet-50 via-white to-sky-50 p-3 shadow-sm">
-        <div className="absolute -right-5 -top-7 h-20 w-20 rounded-full border-[10px] border-violet-100/70" />
+      <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+        <div className="absolute -right-5 -top-7 h-20 w-20 rounded-full border-[10px] border-slate-100" />
         <div className="relative flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-100 text-violet-600"><Sparkles className="h-4 w-4" /></div>
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 text-slate-700"><Sparkles className="h-4 w-4" /></div>
           <div className="min-w-0"><p className="text-xs font-bold text-slate-800">Keep exploring</p><p className="truncate text-[10px] text-slate-500">Small steps, big progress.</p></div>
         </div>
       </div>
     ) : (
-      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-100 bg-violet-50 text-violet-500" title="Keep exploring"><BookOpen className="h-4 w-4" /></div>
+      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600" title="Keep exploring"><BookOpen className="h-4 w-4" /></div>
     )}
   </div>
 );
 
 const SidebarShell = ({ expanded }: { expanded: boolean }) => (
-  <div className="relative flex h-full min-h-0 flex-col overflow-hidden border-r border-[#e9e1d6] bg-[#fbf8f3] shadow-[8px_0_28px_rgba(73,56,35,0.04)]">
-    <div className="pointer-events-none absolute -right-12 top-20 h-36 w-36 rounded-full bg-violet-200/25 blur-3xl" />
-    <div className="pointer-events-none absolute -left-16 bottom-24 h-40 w-40 rounded-full bg-sky-200/20 blur-3xl" />
+  <div className="relative flex h-full min-h-0 flex-col overflow-hidden border-r border-slate-200 bg-white shadow-[8px_0_28px_rgba(15,23,42,0.035)]">
 
-    <div className={`relative flex h-[80px] flex-shrink-0 items-center border-b border-[#eee7de] ${expanded ? "px-4" : "px-3"}`}>
+    <div className={`relative flex h-[80px] flex-shrink-0 items-center border-b border-slate-200 ${expanded ? "px-4" : "px-3"}`}>
       <BrandMark expanded={expanded} />
     </div>
 

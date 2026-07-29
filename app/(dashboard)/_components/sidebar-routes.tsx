@@ -27,7 +27,7 @@ export const SidebarRoutes = ({ collapsed = false }: { collapsed?: boolean }) =>
           <SidebarItems key={route.href} icon={route.icon} label={route.label} href={route.href} collapsed={collapsed} />
         ))}
       </div>
-      {!collapsed && <div className="mx-5 h-px bg-[#eee7de]" />}
+      {!collapsed && <div className="mx-5 h-px bg-slate-200" />}
     </div>
   );
 };

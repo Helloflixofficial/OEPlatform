@@ -28,15 +28,15 @@ export const SidebarItems = ({ icon: Icon, label, href, collapsed = false }: Sid
         "group relative mx-2 flex h-12 w-[calc(100%-1rem)] items-center rounded-xl transition-all duration-200",
         collapsed ? "justify-center" : "gap-x-3 px-3",
         isActive
-          ? "bg-slate-900 text-white shadow-[0_8px_18px_rgba(15,23,42,0.16)]"
-          : "text-slate-600 hover:bg-slate-50 hover:text-slate-950 hover:shadow-sm"
+          ? "border border-[#e6d4bd] bg-white text-[#62452e] shadow-[0_6px_16px_rgba(151,111,69,0.12)]"
+          : "text-[#6f645a] hover:bg-white/80 hover:text-[#4d3929] hover:shadow-sm"
       )}
     >
-      {isActive && <span className="absolute -left-2 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-slate-900" />}
+      {isActive && <span className="absolute -left-2 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-[#bd8956]" />}
 
       <span className={cn(
         "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg transition-all",
-        isActive ? "bg-white/15 text-white" : "bg-slate-100/80 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-800"
+        isActive ? "bg-[#FBF6EE] text-[#a87343]" : "border border-[#eee3d6] bg-white/70 text-[#887768] group-hover:bg-[#FBF6EE] group-hover:text-[#a87343]"
       )}>
         <Icon size={18} className="transition-colors" />
       </span>
@@ -45,18 +45,18 @@ export const SidebarItems = ({ icon: Icon, label, href, collapsed = false }: Sid
       {!collapsed && (
         <span className={cn(
           "truncate text-[13px] font-semibold transition-colors",
-          isActive ? "text-white" : "text-slate-600 group-hover:text-slate-950"
+          isActive ? "text-[#62452e]" : "text-[#6f645a] group-hover:text-[#4d3929]"
         )}>
           {label}
         </span>
       )}
 
-      {!collapsed && isActive && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-white/80" />}
+      {!collapsed && isActive && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-[#bd8956]" />}
 
       {/* Tooltip when collapsed */}
       {collapsed && (
         <div className="absolute left-full ml-2 z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-          <div className="rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow-lg">
+          <div className="rounded-lg bg-[#6f5138] px-2.5 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow-lg">
             {label}
           </div>
         </div>

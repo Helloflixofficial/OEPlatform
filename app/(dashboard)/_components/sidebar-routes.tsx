@@ -21,13 +21,13 @@ export const SidebarRoutes = ({ collapsed = false }: { collapsed?: boolean }) =>
 
   return (
     <div className="flex w-full flex-col gap-5">
-      {!collapsed && <p className="px-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">{isTeacherPage ? "Teaching workspace" : "Learning workspace"}</p>}
+      {!collapsed && <p className="px-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#a17b59]">{isTeacherPage ? "Teaching workspace" : "Learning workspace"}</p>}
       <div className="flex w-full flex-col gap-1">
         {Routes.map((route) => (
           <SidebarItems key={route.href} icon={route.icon} label={route.label} href={route.href} collapsed={collapsed} />
         ))}
       </div>
-      {!collapsed && <div className="mx-5 h-px bg-slate-200" />}
+      {!collapsed && <div className="mx-5 h-px bg-[#e8dccc]" />}
     </div>
   );
 };

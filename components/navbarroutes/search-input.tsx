@@ -24,12 +24,12 @@ export const Searchinput = () => {
     router.push(url)
   }, [debounceVlaue, currentCategoryId, router, pathname])
   return (
-    <div className="relative ">
-      <SearchIcon className="h-4 w-4 absolute top-3 left-3 text-slate-600" />
+    <div className="relative w-full max-w-[420px]">
+      <SearchIcon className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#ae7b4a]" />
       <Input onChange={(e) =>
         setValue(e.target.value)
-      } value={value} className="w-full  md:w-[300px] pl-9 rounded-full bg-slate-100 focus-visible: ring-slate-200"
-        placeholder="Seach courses" />
+      } value={value} className="h-11 w-full rounded-xl border-[#e6d4bd] bg-white/85 pl-10 text-sm text-[#3d3026] shadow-sm placeholder:text-[#a49383] focus-visible:border-[#c99a69] focus-visible:ring-2 focus-visible:ring-[#d7b28b]/30"
+        placeholder="Search courses" />
     </div>
   )
 }

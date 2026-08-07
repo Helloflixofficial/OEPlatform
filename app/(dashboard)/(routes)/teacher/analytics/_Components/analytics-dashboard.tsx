@@ -13,25 +13,13 @@ import {
   ShoppingCart,
   Users,
 } from "lucide-react";
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  ComposedChart,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import dynamic from "next/dynamic";
 import { AnalyticsSnapshot } from "@/Actions/get-analytics";
 import { formatPrice } from "@/lib/formet";
 
-const chartColors = ["#0f172a", "#334155", "#64748b", "#94a3b8", "#cbd5e1"];
+const ChartPlaceholder = () => <div className="h-[310px] animate-pulse rounded-xl bg-[#fbf7f1]" />;
+const RevenueTrendChart = dynamic(() => import("./analytics-charts").then((module) => module.RevenueTrendChart), { ssr: false, loading: ChartPlaceholder });
+const CategoryInterestCharts = dynamic(() => import("./analytics-charts").then((module) => module.CategoryInterestCharts), { ssr: false, loading: () => <div className="h-[250px] animate-pulse rounded-xl bg-[#fbf7f1]" /> });
 
 const formatDate = (date: string) =>
   new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(date));
@@ -136,27 +124,7 @@ export const AnalyticsDashboard = ({ analytics }: { analytics: AnalyticsSnapshot
         <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1.65fr)_minmax(300px,0.85fr)]">
           <Panel title="Revenue and sales trend" description="Recorded purchases by month · last 6 months">
             {hasSales ? (
-              <ResponsiveContainer width="100%" height={310}>
-                <ComposedChart data={analytics.monthly} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="revenueFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#cbd5e1" stopOpacity={0.7} />
-                      <stop offset="100%" stopColor="#f8fafc" stopOpacity={0.1} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid vertical={false} stroke="#e2e8f0" strokeDasharray="4 4" />
-                  <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: "#64748b" }} />
-                  <YAxis yAxisId="revenue" tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: "#64748b" }} tickFormatter={(value) => `$${value}`} />
-                  <YAxis yAxisId="sales" orientation="right" allowDecimals={false} tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: "#64748b" }} />
-                  <Tooltip
-                    cursor={{ fill: "#f8fafc" }}
-                    contentStyle={{ borderRadius: 12, borderColor: "#e2e8f0", boxShadow: "0 8px 24px rgba(15,23,42,.08)" }}
-                    formatter={(value: number, name: string) => [name === "revenue" ? formatPrice(value) : value, name === "revenue" ? "Revenue" : "Sales"]}
-                  />
-                  <Area yAxisId="revenue" type="monotone" dataKey="revenue" stroke="#0f172a" strokeWidth={2} fill="url(#revenueFill)" />
-                  <Bar yAxisId="sales" dataKey="sales" fill="#94a3b8" radius={[4, 4, 0, 0]} barSize={24} />
-                </ComposedChart>
-              </ResponsiveContainer>
+              <RevenueTrendChart data={analytics.monthly} />
             ) : <EmptyState label="No sales data yet" />}
           </Panel>
 
@@ -185,27 +153,7 @@ export const AnalyticsDashboard = ({ analytics }: { analytics: AnalyticsSnapshot
         <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <Panel title="What learners are interested in" description="Demand grouped by the categories on your courses">
             {analytics.categoryData.length ? (
-              <div className="grid gap-4 md:grid-cols-[1.1fr_0.9fr] md:items-center">
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={analytics.categoryData.slice(0, 6)} layout="vertical" margin={{ top: 0, right: 16, left: 8, bottom: 0 }}>
-                    <CartesianGrid horizontal={false} stroke="#f1f5f9" />
-                    <XAxis type="number" allowDecimals={false} hide />
-                    <YAxis type="category" dataKey="name" width={100} tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: "#475569" }} />
-                    <Tooltip cursor={{ fill: "#f8fafc" }} contentStyle={{ borderRadius: 12, borderColor: "#e2e8f0" }} formatter={(value: number) => [`${value} sales`, "Demand"]} />
-                    <Bar dataKey="sales" fill="#334155" radius={[0, 5, 5, 0]} barSize={22} />
-                  </BarChart>
-                </ResponsiveContainer>
-                <div className="flex items-center justify-center">
-                  <ResponsiveContainer width="100%" height={210}>
-                    <PieChart>
-                      <Pie data={analytics.categoryData.slice(0, 5)} dataKey="sales" nameKey="name" innerRadius={54} outerRadius={78} paddingAngle={3} strokeWidth={0}>
-                        {analytics.categoryData.slice(0, 5).map((entry, index) => <Cell key={entry.name} fill={chartColors[index % chartColors.length]} />)}
-                      </Pie>
-                      <Tooltip contentStyle={{ borderRadius: 12, borderColor: "#e2e8f0" }} formatter={(value: number) => [`${value} sales`, "Demand"]} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
+              <CategoryInterestCharts data={analytics.categoryData} />
             ) : <EmptyState label="No learner interests recorded yet" />}
             {topCategory && <p className="mt-3 rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-600"><span className="font-bold text-slate-950">{topCategory.name}</span> is currently your strongest category with {topCategory.sales} recorded sale{topCategory.sales === 1 ? "" : "s"}.</p>}
           </Panel>

@@ -75,18 +75,18 @@ export const ChaptersList = ({
                 {(provided) => (
                   <div
                     className={cn(
-                      "flex items-center gap-x-2 bg-slate-200 border-slate-200 border text-slate-700 rounded-md mb-4 text-sm",
+                      "flex items-center gap-x-2 rounded-xl border border-[#e4d5c6] bg-[#fbf7f1] text-[#6b5c50] mb-3 text-sm",
                       chapter.isPublished &&
-                        "bg-sky-100 border-sky-200 text-sky-700"
+                        "bg-[#f1f8f2] border-[#d7e8d9] text-[#5f8067]"
                     )}
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                   >
                     <div
                       className={cn(
-                        "px-2 py-3 border-r border-r-slate-200 hover:bg-slate-300 rounded-l-md transition",
-                        chapter.isPublished &&
-                          "border-r-sky-200 hover:bg-sky-200"
+                        "rounded-l-xl border-r border-r-[#e4d5c6] px-2.5 py-3 transition hover:bg-[#f5ede3]",
+                      chapter.isPublished &&
+                          "border-r-[#d7e8d9] hover:bg-[#e5f1e7]"
                       )}
                       {...provided.dragHandleProps}
                     >
@@ -94,18 +94,18 @@ export const ChaptersList = ({
                     </div>
                     {chapter.title}
                     <div className="ml-auto pr-2 flex items-center gap-x-2">
-                      {chapter.isFree && <Badge>Free</Badge>}
+                      {chapter.isFree && <Badge className="border-[#d7e8d9] bg-[#e5f1e7] text-[#55735b]">Free</Badge>}
                       <Badge
                         className={cn(
-                          "bg-slate-500",
-                          chapter.isPublished && "bg-sky-700"
+                          "border-[#ead7c1] bg-[#fbf3e8] text-[#986b3f]",
+                          chapter.isPublished && "border-[#c9dfcd] bg-[#e5f1e7] text-[#55735b]"
                         )}
                       >
                         {chapter.isPublished ? "Published" : "Draft"}
                       </Badge>
                       <Pencil
                         onClick={() => onEdit(chapter.id)}
-                        className="w-4 h-4 cursor-pointer hover:opacity-75 transition"
+                        className="h-4 w-4 cursor-pointer text-[#9d8063] transition hover:text-[#6f5138]"
                       />
                     </div>
                   </div>

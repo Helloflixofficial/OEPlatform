@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { formatPrice } from "@/lib/formet";
 
@@ -59,10 +58,10 @@ export const PriceForm = ({ initialData, courseId }: PriceFormProps) => {
   };
 
   return (
-    <div className="mt-6 border bg-slate-100 rounded-md p-4">
-      <div className="font-medium flex items-center justify-between">
+    <div className="mt-6 rounded-2xl border border-[#eadfd3] bg-white p-5 shadow-[0_8px_30px_rgba(113,83,52,0.05)] sm:p-6">
+      <div className="flex items-center justify-between font-extrabold text-[#4d3929]">
         Course Price
-        <Button onClick={toggleEdit} variant="ghost">
+        <Button onClick={toggleEdit} variant="ghost" className="rounded-xl px-3 text-xs font-bold text-[#80644d] hover:bg-[#faf3eb] hover:text-[#5d422e]">
           {isEditing ? (
             <>Cancel</>
           ) : (
@@ -76,8 +75,8 @@ export const PriceForm = ({ initialData, courseId }: PriceFormProps) => {
       {!isEditing && (
         <p
           className={cn(
-            "text-sm mt-2",
-            !initialData.price && "text-slate-500 italic"
+            "mt-3 text-sm text-[#6b5c50]",
+            !initialData.price && "italic text-[#a18e7d]"
           )}
         >
           {initialData.price ? formatPrice(initialData.price) : "no price"}
@@ -99,7 +98,8 @@ export const PriceForm = ({ initialData, courseId }: PriceFormProps) => {
                       type="number"
                       step="0.01"
                       disabled={isSubmitting}
-                      placeholder="e.g. 'This course is about...'"
+                      placeholder="e.g. 49.00"
+                      className="rounded-xl border-[#e6d9cc] bg-[#fffdf9] text-[#4d3929] placeholder:text-[#b5a699] focus-visible:border-[#bd8956] focus-visible:ring-[#d7b28b]/30"
                       {...field}
                     ></Input>
                   </FormControl>
@@ -108,7 +108,7 @@ export const PriceForm = ({ initialData, courseId }: PriceFormProps) => {
               )}
             />
             <div className="flex items-center gap-x-2">
-              <Button disabled={!isValid || isSubmitting} type="submit">
+              <Button className="rounded-xl bg-[#6f5138] font-bold text-white hover:bg-[#5d422e]" disabled={!isValid || isSubmitting} type="submit">
                 Save
               </Button>
             </div>

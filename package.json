@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "cross-env NODE_OPTIONS=--max-old-space-size=1536 node scripts/dev-lan-https.mjs",
     "dev:https": "cross-env NODE_OPTIONS=--max-old-space-size=1536 node scripts/dev-lan-https.mjs",
-    "dev:http": "cross-env NODE_OPTIONS=--max-old-space-size=1536 next dev -H 0.0.0.0 --turbo",
+    "dev:http": "cross-env NODE_OPTIONS=--max-old-space-size=1536 next dev -H 0.0.0.0",
     "dev:tunnel": "npx cloudflared@latest tunnel --url http://localhost:3000",
     "build": "next build",
     "start": "next start",

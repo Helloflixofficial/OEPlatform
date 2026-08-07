@@ -44,15 +44,40 @@ function safeMeta(m?: string | null): PMeta {
 function safeName(p: any): string {
   return p?.name || p?.identity || "Participant";
 }
-async function doAdmin(action: string, roomName: string, identity: string) {
+function canPublishAudio(p: any): boolean {
+  if (p?.permissions?.canPublish === false) return false;
+  const sources = p?.permissions?.canPublishSources;
+  if (Array.isArray(sources)) {
+    return sources.includes(Track.Source.Microphone as any)
+      || sources.includes("MICROPHONE")
+      || sources.includes(2);
+  }
+  return p?.permissions?.canPublish !== false;
+}
+async function doAdmin(action: string, roomName: string, identity = "", extra: Record<string, unknown> = {}) {
   const r = await fetch("/api/livekit/admin", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action, roomName, participantIdentity: identity }),
+    body: JSON.stringify({ action, roomName, participantIdentity: identity, ...extra }),
   });
   if (!r.ok) {
     const d = await r.json().catch(() => ({}));
     throw new Error(d.error || "Action failed");
+  }
+  return r.json();
+}
+
+function parseModerationState(metadata?: string | null): { requireRaiseHand: boolean; approvedSpeakers: string[] } {
+  try {
+    const parsed = JSON.parse(metadata || "{}");
+    return {
+      requireRaiseHand: parsed.requireRaiseHand === true,
+      approvedSpeakers: Array.isArray(parsed.approvedSpeakers)
+        ? parsed.approvedSpeakers.filter((id: unknown): id is string => typeof id === "string")
+        : [],
+    };
+  } catch {
+    return { requireRaiseHand: false, approvedSpeakers: [] };
   }
 }
 
@@ -92,7 +117,7 @@ function ParticipantTile({ participant, trackRef, isLocal, isHost, isHostTile, r
   const meta = safeMeta(participant?.metadata);
   const name = safeName(participant);
   const isMuted = !participant?.isMicrophoneEnabled;
-  const canPub = participant?.permissions?.canPublish !== false;
+  const canPub = canPublishAudio(participant);
   const hasVideo = (() => {
     try { return trackRef && "publication" in trackRef && trackRef.publication?.isEnabled && trackRef.publication?.track; }
     catch { return false; }
@@ -116,7 +141,6 @@ function ParticipantTile({ participant, trackRef, isLocal, isHost, isHostTile, r
       {/* Top badges */}
       <div className="absolute top-2 left-2 flex gap-1 flex-wrap">
         {handRaised && <span className="bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md">✋</span>}
-        {!canPub && <span className="bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md">MUTED</span>}
         {participant?.isScreenShareEnabled && <span className="bg-sky-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md">SHARING</span>}
       </div>
 
@@ -168,9 +192,10 @@ function ParticipantTile({ participant, trackRef, isLocal, isHost, isHostTile, r
 //  LEFT SIDEBAR — Discord Voice Channel Members
 // ═══════════════════════════════════════════════════════════════════
 
-function LeftSidebar({ all, localId, isHost, roomName, raisedHands, speakerIds, onAdmin, onPin, onClose }: {
+function LeftSidebar({ all, localId, isHost, roomName, raisedHands, speakerIds, speakingMode, approvedSpeakers, onAdmin, onPin, onClose }: {
   all: any[]; localId: string; isHost: boolean; roomName: string;
   raisedHands: Set<string>; speakerIds: Set<string>;
+  speakingMode: boolean; approvedSpeakers: Set<string>;
   onAdmin: (a: string, id: string) => void;
   onPin: (id: string) => void;
   onClose?: () => void;
@@ -182,6 +207,9 @@ function LeftSidebar({ all, localId, isHost, roomName, raisedHands, speakerIds, 
     document.addEventListener("click", close);
     return () => document.removeEventListener("click", close);
   }, []);
+
+  const contextParticipant = ctxMenu ? all.find((participant) => participant?.identity === ctxMenu.identity) : null;
+  const contextCanPublishAudio = canPublishAudio(contextParticipant);
 
   return (
     <div className="flex flex-col h-full w-[min(88vw,260px)] lg:w-[220px] border-r flex-shrink-0" style={{ background: "#2b2d31", borderColor: "#1e1f22" }}>
@@ -214,7 +242,7 @@ function LeftSidebar({ all, localId, isHost, roomName, raisedHands, speakerIds, 
           const name = safeName(p);
           const isLocal = p?.identity === localId;
           const isMuted = !p?.isMicrophoneEnabled;
-          const canPub = p?.permissions?.canPublish !== false;
+          const canPub = canPublishAudio(p);
           const speaking = speakerIds.has(p?.identity ?? "");
           const handUp = raisedHands.has(p?.identity ?? "");
 
@@ -262,8 +290,15 @@ function LeftSidebar({ all, localId, isHost, roomName, raisedHands, speakerIds, 
           onClick={e => e.stopPropagation()}
         >
           {[
-            { label: "Mute", icon: VolumeX, action: "mute", cls: "text-[#dbdee1] hover:bg-[#5865f2] hover:text-white" },
-            { label: "Unmute", icon: Volume2, action: "unmute", cls: "text-[#dbdee1] hover:bg-[#5865f2] hover:text-white" },
+            contextCanPublishAudio
+              ? { label: "Mute", icon: VolumeX, action: "mute", cls: "text-[#dbdee1] hover:bg-[#5865f2] hover:text-white" }
+              : { label: "Unmute", icon: Volume2, action: "unmute", cls: "text-sky-300 hover:bg-sky-600 hover:text-white" },
+            ...(raisedHands.has(ctxMenu.identity)
+              ? [{ label: "Allow to speak", icon: Check, action: "approve-speaker", cls: "text-emerald-300 hover:bg-emerald-600 hover:text-white" }]
+              : []),
+            ...(speakingMode && approvedSpeakers.has(ctxMenu.identity)
+              ? [{ label: "Revoke speaking", icon: VolumeX, action: "revoke-speaker", cls: "text-amber-300 hover:bg-amber-600 hover:text-white" }]
+              : []),
             { label: "Spotlight", icon: Pin, action: "__pin", cls: "text-[#dbdee1] hover:bg-[#5865f2] hover:text-white" },
             { label: "Lower Hand", icon: Hand, action: "lower-hand", cls: "text-[#dbdee1] hover:bg-amber-600 hover:text-white" },
             { label: "Remove from call", icon: UserX, action: "kick", cls: "text-red-400 hover:bg-red-600 hover:text-white" },
@@ -432,13 +467,81 @@ function EmojiPicker({ onPick, onClose }: { onPick: (e: string) => void; onClose
 //  BOTTOM CONTROL BAR — Discord style
 // ═══════════════════════════════════════════════════════════════════
 
+function AdminModerationMenu({
+  speakingMode,
+  pendingParticipants,
+  onMuteAll,
+  onUnmuteAll,
+  onToggleSpeakingMode,
+  onApprove,
+}: {
+  speakingMode: boolean;
+  pendingParticipants: Array<{ identity: string; name: string }>;
+  onMuteAll(): void;
+  onUnmuteAll(): void;
+  onToggleSpeakingMode(): void;
+  onApprove(identity: string): void;
+}) {
+  const [open, setOpen] = useState(false);
+  const pendingHands = pendingParticipants.length;
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen((value) => !value)}
+        title="Admin moderation"
+        className={cn(
+          "relative flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition-colors",
+          speakingMode ? "bg-amber-500/20 text-amber-300" : "bg-[#383a40] text-[#b5bac1] hover:bg-white/10 hover:text-white",
+        )}
+      >
+        <Shield className="h-3.5 w-3.5" />
+        <span className="hidden md:inline">Moderation</span>
+        {pendingHands > 0 && <span className="absolute -right-1.5 -top-1.5 min-w-4 rounded-full bg-amber-400 px-1 text-center text-[10px] font-bold text-amber-950">{pendingHands}</span>}
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 top-10 z-50 w-64 rounded-xl border border-[#3f4147] bg-[#18191c] p-1.5 shadow-2xl">
+            <div className="px-2.5 pb-2 pt-1">
+              <p className="text-xs font-semibold text-white">Admin controls</p>
+              <p className="mt-0.5 text-[11px] leading-relaxed text-[#b5bac1]">Only admins can change who is allowed to speak.</p>
+            </div>
+            <button onClick={() => { onToggleSpeakingMode(); setOpen(false); }} className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs text-[#dbdee1] hover:bg-white/10">
+              <Hand className="h-4 w-4 text-amber-300" />
+              {speakingMode ? "Turn off raise-hand mode" : "Require hand raise to speak"}
+            </button>
+            <button onClick={() => { onMuteAll(); setOpen(false); }} className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs text-[#dbdee1] hover:bg-white/10">
+              <VolumeX className="h-4 w-4 text-red-300" /> Mute everyone
+            </button>
+            <button onClick={() => { onUnmuteAll(); setOpen(false); }} className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs text-[#dbdee1] hover:bg-white/10">
+              <Volume2 className="h-4 w-4 text-emerald-300" /> Allow everyone to speak
+            </button>
+            {(speakingMode || pendingHands > 0) && (
+              <div className="mt-1 border-t border-[#3f4147] pt-1">
+                <p className="px-2.5 pb-1 pt-1 text-[11px] text-amber-300">{pendingHands ? `${pendingHands} hand${pendingHands === 1 ? "" : "s"} waiting` : "No hands raised"}</p>
+                {pendingParticipants.map((participant) => (
+                  <button key={participant.identity} onClick={() => { onApprove(participant.identity); setOpen(false); }} className="flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-left text-xs text-[#dbdee1] hover:bg-emerald-600/20">
+                    <span className="truncate">{participant.name}</span>
+                    <span className="flex-shrink-0 text-emerald-300">Allow</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function ControlBar({
-  localP, micOn, camOn, screenOn, deafened, showChat, showSidebar, handUp,
+  localP, micOn, camOn, screenOn, deafened, showChat, showSidebar, handUp, micBlocked,
   showEmoji, onMic, onCam, onScreen, onDeafen, onChat, onSidebar, onHand,
   onEmoji, onLeave, onEnd, onInvite, isHost,
 }: {
   localP: any; micOn: boolean; camOn: boolean; screenOn: boolean; deafened: boolean;
-  showChat: boolean; showSidebar: boolean; handUp: boolean; showEmoji: boolean;
+  showChat: boolean; showSidebar: boolean; handUp: boolean; micBlocked: boolean; showEmoji: boolean;
   onMic(): void; onCam(): void; onScreen(): void; onDeafen(): void;
   onChat(): void; onSidebar(): void; onHand(): void; onEmoji(): void;
   onLeave(): void; onEnd(): void; onInvite(): void; isHost: boolean;
@@ -487,11 +590,13 @@ function ControlBar({
 
       {/* Center: Main controls */}
       <div className="flex items-center justify-center gap-0 sm:gap-0.5 flex-none sm:flex-1">
-        <Btn icon={micOn ? Mic : MicOff} label={micOn ? "Mute" : "Unmute"} active={micOn} onClick={onMic} />
+        {micBlocked
+          ? <Btn icon={Hand} label={handUp ? "Cancel speaking request" : "Request to speak"} active={handUp} onClick={onHand} badge={handUp} />
+          : <Btn icon={micOn ? Mic : MicOff} label={micOn ? "Mute" : "Unmute"} active={micOn} onClick={onMic} />}
         <Btn icon={camOn ? VideoIcon : VideoOff} label={camOn ? "Turn Off Camera" : "Turn On Camera"} active={camOn} onClick={onCam} />
         <Btn icon={screenOn ? MonitorOff : Monitor} label={screenOn ? "Stop Sharing" : "Share Screen"} active={screenOn} onClick={onScreen} />
         <div className="hidden sm:block"><Btn icon={deafened ? VolumeX : Headphones} label={deafened ? "Undeafen" : "Deafen"} active={!deafened} onClick={onDeafen} /></div>
-        <div className="hidden sm:block"><Btn icon={Hand} label={handUp ? "Lower Hand" : "Raise Hand"} active={handUp} onClick={onHand} badge={handUp} /></div>
+        {!micBlocked && <div className="hidden sm:block"><Btn icon={Hand} label={handUp ? "Lower Hand" : "Raise Hand"} active={handUp} onClick={onHand} badge={handUp} /></div>}
         <div className="hidden sm:block"><Btn icon={Smile} label="React with Emoji" active={showEmoji} onClick={onEmoji} /></div>
 
         <div className="hidden sm:block h-6 w-px bg-[#3f4147] mx-1.5" />
@@ -508,7 +613,7 @@ function ControlBar({
           {showMore && (
             <div className="absolute bottom-12 right-0 z-50 w-48 rounded-xl border border-[#3f4147] bg-[#18191c] p-1.5 shadow-2xl">
               <button onClick={() => { onDeafen(); setShowMore(false); }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs text-[#dbdee1] hover:bg-white/10"><Headphones className="h-4 w-4" /> {deafened ? "Undeafen" : "Deafen"}</button>
-              <button onClick={() => { onHand(); setShowMore(false); }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs text-[#dbdee1] hover:bg-white/10"><Hand className="h-4 w-4" /> {handUp ? "Lower hand" : "Raise hand"}</button>
+              <button onClick={() => { onHand(); setShowMore(false); }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs text-[#dbdee1] hover:bg-white/10"><Hand className="h-4 w-4" /> {micBlocked ? (handUp ? "Cancel request" : "Request to speak") : (handUp ? "Lower hand" : "Raise hand")}</button>
               <button onClick={() => { onEmoji(); setShowMore(false); }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs text-[#dbdee1] hover:bg-white/10"><Smile className="h-4 w-4" /> React</button>
               <button onClick={() => { onInvite(); setShowMore(false); }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs text-[#dbdee1] hover:bg-white/10"><Link2 className="h-4 w-4" /> Copy invite</button>
               {isHost && <button onClick={() => { onEnd(); setShowMore(false); }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs text-red-300 hover:bg-red-600/20"><PhoneOff className="h-4 w-4" /> End for all</button>}
@@ -553,6 +658,7 @@ function RoomContent({ roomName, isHost, onLeave, onEnd }: { roomName: string; i
   const [showEmoji, setShowEmoji] = useState(false);
   const [pinnedId, setPinnedId] = useState<string | null>(null);
   const [raisedHands, setRaisedHands] = useState<Set<string>>(new Set());
+  const [moderation, setModeration] = useState(() => parseModerationState(room.metadata));
   const [floatEmojis, setFloatEmojis] = useState<FloatEmoji[]>([]);
   const [mobileSidebar, setMobileSidebar] = useState(false);
 
@@ -566,6 +672,30 @@ function RoomContent({ roomName, isHost, onLeave, onEnd }: { roomName: string; i
   const speakerIds = useMemo(() => new Set(activeSpeakers.map((s: any) => (s?.identity ?? "") as string)) as Set<string>, [activeSpeakers]);
   const allP = useMemo(() => [localParticipant, ...remoteParticipants.filter(p => p?.identity !== localParticipant?.identity)].filter(Boolean), [localParticipant, remoteParticipants]);
   const getTrack = useCallback((p: any) => cameraTracks.find(t => t?.participant?.identity === p?.identity), [cameraTracks]);
+  const approvedSpeakers = useMemo(() => new Set(moderation.approvedSpeakers), [moderation.approvedSpeakers]);
+  const speakingMode = moderation.requireRaiseHand;
+  const myIdentity = localParticipant?.identity ?? "";
+  const myApproved = isHost || !speakingMode || approvedSpeakers.has(myIdentity);
+  const micBlocked = !isHost && !canPublishAudio(localParticipant);
+
+  useEffect(() => {
+    const updateModeration = (metadata: string) => setModeration(parseModerationState(metadata));
+    setModeration(parseModerationState(room.metadata));
+    room.on(RoomEvent.RoomMetadataChanged, updateModeration);
+    return () => { room.off(RoomEvent.RoomMetadataChanged, updateModeration); };
+  }, [room]);
+
+  const previousMicBlocked = useRef(micBlocked);
+  useEffect(() => {
+    if (!isHost && micBlocked && isMicrophoneEnabled) {
+      localParticipant.setMicrophoneEnabled(false).catch(() => {});
+    }
+    if (!isHost && previousMicBlocked.current && !micBlocked && !isMicrophoneEnabled) {
+      localParticipant.setMicrophoneEnabled(true).catch(() => {});
+      toast.success("The admin allowed you to speak", { duration: 3500 });
+    }
+    previousMicBlocked.current = micBlocked;
+  }, [isHost, micBlocked, isMicrophoneEnabled, localParticipant]);
 
   // Data messages: hand raise + emoji reactions
   useEffect(() => {
@@ -604,6 +734,10 @@ function RoomContent({ roomName, isHost, onLeave, onEnd }: { roomName: string; i
 
   // Control handlers — errors are shown as toasts; no pre-flight guard that blocks everything
   const toggleMic = useCallback(async () => {
+    if (!isHost && micBlocked && !isMicrophoneEnabled) {
+      toast("Raise your hand and wait for the admin to allow you to speak", { icon: "✋", duration: 3500 });
+      return;
+    }
     try {
       await localParticipant.setMicrophoneEnabled(!isMicrophoneEnabled);
     } catch (e: any) {
@@ -618,7 +752,7 @@ function RoomContent({ roomName, isHost, onLeave, onEnd }: { roomName: string; i
         toast.error("Mic error: " + (msg || "Failed to toggle microphone"), { duration: 5000 });
       }
     }
-  }, [localParticipant, isMicrophoneEnabled]);
+  }, [isHost, micBlocked, localParticipant, isMicrophoneEnabled]);
 
   const toggleCamera = useCallback(async () => {
     try {
@@ -688,10 +822,26 @@ function RoomContent({ roomName, isHost, onLeave, onEnd }: { roomName: string; i
     }
     const tid = toast.loading(action === "kick" ? "Removing…" : action === "mute" ? "Muting…" : "Unmuting…");
     try {
-      await doAdmin(action, roomName, identity);
-      toast.success(action === "kick" ? "Removed" : action === "mute" ? "Muted" : "Unmuted", { id: tid });
+      const result = await doAdmin(action, roomName, identity, { requesterIdentity: localParticipant?.identity });
+      if (result?.moderation) setModeration(result.moderation);
+      toast.success(action === "kick" ? "Removed" : action === "mute" ? "Muted" : action === "approve-speaker" ? "Permission granted" : action === "revoke-speaker" ? "Permission revoked" : "Unmuted", { id: tid });
     } catch (e: any) { toast.error(e?.message || "Failed", { id: tid }); }
-  }, [roomName, sendData]);
+  }, [roomName, sendData, localParticipant]);
+
+  const runModerationAction = useCallback(async (action: "mute-all" | "unmute-all" | "set-speaking-mode", enabled?: boolean) => {
+    if (action === "mute-all" && !window.confirm("Mute every participant except you?")) return;
+    const tid = toast.loading(action === "mute-all" ? "Muting everyoneâ€¦" : action === "unmute-all" ? "Allowing everyone to speakâ€¦" : enabled ? "Enabling raise-hand modeâ€¦" : "Disabling raise-hand modeâ€¦");
+    try {
+      const result = await doAdmin(action, roomName, "", {
+        requesterIdentity: localParticipant?.identity,
+        ...(action === "set-speaking-mode" ? { enabled } : {}),
+      });
+      if (result?.moderation) setModeration(result.moderation);
+      if (action === "mute-all") toast.success("Everyone is muted", { id: tid });
+      else if (action === "unmute-all") toast.success("Everyone can speak", { id: tid });
+      else toast.success(enabled ? "Raise-hand mode is on" : "Raise-hand mode is off", { id: tid });
+    } catch (e: any) { toast.error(e?.message || "Moderation action failed", { id: tid }); }
+  }, [roomName, localParticipant]);
 
   const handleLeave = useCallback(async () => {
     try { await room.disconnect(true); } catch {}
@@ -752,6 +902,18 @@ function RoomContent({ roomName, isHost, onLeave, onEnd }: { roomName: string; i
         </div>
 
         <div className="flex items-center gap-2">
+          {isHost && (
+            <AdminModerationMenu
+              speakingMode={speakingMode}
+              pendingParticipants={allP
+                .filter((participant) => raisedHands.has(participant?.identity ?? "") && !approvedSpeakers.has(participant?.identity ?? "") && participant?.identity !== localParticipant?.identity)
+                .map((participant) => ({ identity: participant.identity, name: safeName(participant) }))}
+              onMuteAll={() => runModerationAction("mute-all")}
+              onUnmuteAll={() => runModerationAction("unmute-all")}
+              onToggleSpeakingMode={() => runModerationAction("set-speaking-mode", !speakingMode)}
+              onApprove={(identity) => handleAdmin("approve-speaker", identity)}
+            />
+          )}
           <div className="flex items-center gap-1.5 rounded px-2.5 py-1 text-xs" style={{ background: "#383a40", color: "#b5bac1" }}>
             <Users className="h-3.5 w-3.5" />
             <span>{allP.length}</span>
@@ -773,6 +935,7 @@ function RoomContent({ roomName, isHost, onLeave, onEnd }: { roomName: string; i
             <LeftSidebar
               all={allP} localId={localParticipant?.identity ?? ""} isHost={isHost}
               roomName={roomName} raisedHands={raisedHands} speakerIds={speakerIds}
+              speakingMode={speakingMode} approvedSpeakers={approvedSpeakers}
               onAdmin={handleAdmin} onPin={setPinnedId}
             />
           </div>
@@ -784,6 +947,7 @@ function RoomContent({ roomName, isHost, onLeave, onEnd }: { roomName: string; i
             <LeftSidebar
               all={allP} localId={localParticipant?.identity ?? ""} isHost={isHost}
               roomName={roomName} raisedHands={raisedHands} speakerIds={speakerIds}
+              speakingMode={speakingMode} approvedSpeakers={approvedSpeakers}
               onAdmin={handleAdmin} onPin={(id) => { setPinnedId(id); setMobileSidebar(false); }}
               onClose={() => setMobileSidebar(false)}
             />
@@ -862,7 +1026,7 @@ function RoomContent({ roomName, isHost, onLeave, onEnd }: { roomName: string; i
       <ControlBar
         localP={localParticipant} micOn={isMicrophoneEnabled} camOn={isCameraEnabled}
         screenOn={isScreenShareEnabled} deafened={isDeafened} showChat={showChat}
-        showSidebar={showSidebar || mobileSidebar} handUp={myHandUp} showEmoji={showEmoji} isHost={isHost}
+        showSidebar={showSidebar || mobileSidebar} handUp={myHandUp} micBlocked={micBlocked} showEmoji={showEmoji} isHost={isHost}
         onMic={toggleMic} onCam={toggleCamera} onScreen={toggleScreen} onDeafen={toggleDeafen}
         onChat={() => setShowChat(v => !v)} onSidebar={() => {
           if (typeof window !== "undefined" && window.innerWidth < 1024) setMobileSidebar(v => !v);

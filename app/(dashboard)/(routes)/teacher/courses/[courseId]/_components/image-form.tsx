@@ -52,10 +52,10 @@ const form =  useForm<z.infer<typeof formSchema>>({
   }
 
   return (
-    <div className="mt-6 border bg-slate-100 rounded-md p-4">
-      <div className="font-medium flex items-center justify-between">
+    <div className="mt-6 rounded-2xl border border-[#eadfd3] bg-white p-5 shadow-[0_8px_30px_rgba(113,83,52,0.05)] sm:p-6">
+      <div className="flex items-center justify-between font-extrabold text-[#4d3929]">
         Course image
-        <Button onClick={toggleEdit} variant="ghost">
+        <Button onClick={toggleEdit} variant="ghost" className="rounded-xl px-3 text-xs font-bold text-[#80644d] hover:bg-[#faf3eb] hover:text-[#5d422e]">
           {isEditing && (
             <>Cancel</>
           )}
@@ -77,11 +77,11 @@ const form =  useForm<z.infer<typeof formSchema>>({
       </div>
       {!isEditing && (
         !initialData.imageUrl ? (
-          <div className="flex items-center justify-center h-60 bg-slate-200 rounded-md">
-            <ImageIcon className="h-10 w-10 text-slate-500" />
+            <div className="mt-3 flex h-60 items-center justify-center rounded-xl border border-dashed border-[#dfcdbb] bg-[#fbf7f1]">
+            <ImageIcon className="h-10 w-10 text-[#c5a17e]" />
           </div>
         ) : (
-          <div className="relative aspect-video mt-2">
+            <div className="relative mt-3 aspect-video overflow-hidden rounded-xl border border-[#eadfd3]">
             <Image
               alt="Upload"
               fill
@@ -101,7 +101,7 @@ const form =  useForm<z.infer<typeof formSchema>>({
               }
             }}
           />
-          <div className="text-xs text-muted-foreground mt-4">
+          <div className="mt-4 text-xs text-[#9d8b7a]">
             16:9 aspect ratio recommended
           </div>
         </div>

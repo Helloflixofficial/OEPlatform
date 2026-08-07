@@ -1,11 +1,12 @@
-import { Category, Course } from '@prisma/client'
-
 import { db } from '@/lib/db'
-import { getProgress } from '@/Actions/get-progress'
 
-type CourseWithProgressWithCategory = Course & {
+type CourseWithProgressWithCategory = {
+    id: string
+    title: string
+    imageUrl: string | null
+    price: number | null
     progress: number | null
-    category: Category | null
+    category: { id: string; name: string } | null
     chapters: {
         id: string
     }[]
@@ -30,12 +31,14 @@ export const getCourses = async ({
                     contains: title,
                     mode: 'insensitive',
                 },
-                category: {
-                    id: categoryId,
-                },
+                ...(categoryId ? { categoryId } : {}),
             },
-            include: {
-                category: true,
+            select: {
+                id: true,
+                title: true,
+                imageUrl: true,
+                price: true,
+                category: { select: { id: true, name: true } },
                 chapters: {
                     where: {
                         isPublished: true,
@@ -48,6 +51,7 @@ export const getCourses = async ({
                     where: {
                         userId,
                     },
+                    select: { id: true },
                 },
             },
             orderBy: {
@@ -70,22 +74,17 @@ export const getCourses = async ({
             },
         })
 
-        const progressMap = new Map<string, number>()
-        courses.forEach(course => {
-            if (course.purchases.length === 0) {
-                progressMap.set(course.id, 0) // or null, but since type is number | null, but in usage it's number
-            } else {
-                const publishedChapterIds = course.chapters.map(ch => ch.id)
-                const completedCount = allProgress.filter(p => publishedChapterIds.includes(p.chapterId)).length
-                const progress = publishedChapterIds.length > 0 ? (completedCount / publishedChapterIds.length) * 100 : 0
-                progressMap.set(course.id, progress)
-            }
-        })
+        const completedChapterIds = new Set(allProgress.map(progress => progress.chapterId))
+        const coursesWithProgress: CourseWithProgressWithCategory[] = courses.map(course => {
+            if (course.purchases.length === 0) return { ...course, progress: null }
 
-        const coursesWithProgress: CourseWithProgressWithCategory[] = courses.map(course => ({
-            ...course,
-            progress: course.purchases.length > 0 ? progressMap.get(course.id) || 0 : null,
-        }))
+            const completedCount = course.chapters.reduce(
+                (count, chapter) => count + (completedChapterIds.has(chapter.id) ? 1 : 0),
+                0,
+            )
+            const progress = course.chapters.length > 0 ? (completedCount / course.chapters.length) * 100 : 0
+            return { ...course, progress }
+        })
 
         return coursesWithProgress
     } catch (error) {

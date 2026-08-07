@@ -48,11 +48,11 @@ export const ChapterVideoForm = ({
   };
 
   return (
-    <div className="p-4 mt-6 border rounded-md bg-slate-100">
-      <div className="flex items-center justify-between font-medium">
+    <div className="mt-6 rounded-2xl border border-[#eadfd3] bg-white p-5 shadow-[0_8px_30px_rgba(113,83,52,0.05)] sm:p-6">
+      <div className="flex items-center justify-between font-extrabold text-[#4d3929]">
         <span>Chapter video</span>
 
-        <Button variant="ghost" onClick={toggleEdit}>
+        <Button variant="ghost" className="rounded-xl px-3 text-xs font-bold text-[#80644d] hover:bg-[#faf3eb] hover:text-[#5d422e]" onClick={toggleEdit}>
           {isEditing && <>Cancel</>}
 
           {!isEditing && !initialData.videoUrl && (
@@ -73,11 +73,11 @@ export const ChapterVideoForm = ({
 
       {!isEditing &&
         (!initialData.videoUrl ? (
-          <div className="flex items-center justify-center rounded-md h-60 bg-slate-200">
-            <Video className="w-10 h-10 text-slate-500" />
+          <div className="mt-3 flex h-60 items-center justify-center rounded-xl border border-dashed border-[#dfcdbb] bg-[#fbf7f1]">
+            <Video className="h-10 w-10 text-[#c5a17e]" />
           </div>
         ) : (
-          <div className="relative mt-2 aspect-video">
+          <div className="relative mt-3 aspect-video overflow-hidden rounded-xl border border-[#eadfd3]">
             <MuxPlayer playbackId={initialData?.muxData?.playbackId || ""} />
           </div>
         ))}
@@ -93,14 +93,14 @@ export const ChapterVideoForm = ({
             }}
           />
 
-          <div className="mt-4 text-xs text-muted-foreground">
-            Upload this chapter&apos;s video
+          <div className="mt-4 text-xs text-[#9d8b7a]">
+            Upload this chapter&apos;s video.
           </div>
         </div>
       )}
 
       {initialData.videoUrl && !isEditing && (
-        <div className="mt-2 text-xs text-muted-foreground">
+        <div className="mt-3 text-xs leading-5 text-[#9d8b7a]">
           Videos can take a few minutes to process. Refresh the page if video
           does not appear.
         </div>

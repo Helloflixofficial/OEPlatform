@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { CheckCircle, Clock } from 'lucide-react'
 import { getDashboardCourses } from '@/Actions/get-dashboard-courses'
+import { getCategories } from '@/lib/catalog'
 import { InfoCard } from './_components/info-cards'
 import { EnrolledCoursesClient } from './_components/enrolled-courses-client'
 
@@ -13,10 +14,10 @@ export default async function DashboardPage() {
     return redirect('/')
   }
 
-  const { completedCourses, coursesInProgress } = await getDashboardCourses(
-    userId,
-  )
-  const categories = await db.category.findMany({ orderBy: { name: 'asc' } })
+  const [{ completedCourses, coursesInProgress }, categories] = await Promise.all([
+    getDashboardCourses(userId),
+    getCategories(),
+  ])
 
   return (
     <div className="flex h-[calc(100vh-80px)] min-h-0 flex-col gap-4 overflow-hidden p-4 sm:p-6">

@@ -34,7 +34,6 @@ const nextArgs = [
   certificate.key,
   "--experimental-https-cert",
   certificate.cert,
-  "--turbo",
 ];
 
 const child = spawn(nextCommand, nextArgs, {

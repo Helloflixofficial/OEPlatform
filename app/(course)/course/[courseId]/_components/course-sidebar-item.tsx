@@ -1,6 +1,7 @@
 'use client'
 
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
+import Link from 'next/link'
 import { CheckCircle, Lock, PlayCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -19,20 +20,15 @@ export const CourseSidebarItem = ({
   isLocked,
   isCompleted,
 }: CourseSidebarItemProps) => {
-  const router = useRouter()
   const pathname = usePathname()
 
   const Icon = isLocked ? Lock : isCompleted ? CheckCircle : PlayCircle
   const isActive = pathname?.includes(id)
 
-  const onClick = () => {
-    router.push(`/course/${courseId}/chapters/${id}`)
-  }
-
   return (
-    <button
-      type="button"
-      onClick={onClick}
+    <Link
+      href={`/course/${courseId}/chapters/${id}`}
+      prefetch
       className={cn(
         'group flex w-full items-start gap-x-2 border-l-2 border-transparent px-5 py-3 text-left text-sm font-medium text-slate-600 transition-all hover:bg-slate-50 hover:text-slate-900',
         isActive &&
@@ -51,6 +47,6 @@ export const CourseSidebarItem = ({
         />
         <span className="line-clamp-2 leading-5">{label}</span>
       </div>
-    </button>
+    </Link>
   )
 }

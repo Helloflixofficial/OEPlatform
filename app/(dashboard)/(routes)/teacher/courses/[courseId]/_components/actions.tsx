@@ -70,13 +70,14 @@ export const Actions = ({ courseId, disabled, isPublished }: ActionsProps) => {
       <Button
         size="sm"
         variant="outline"
+        className="h-10 rounded-xl border-[#e6d9cc] bg-white px-4 font-bold text-[#6f5138] shadow-sm hover:bg-[#fffaf4] hover:text-[#5d422e]"
         onClick={onClick}
         disabled={disabled || isLoading}
       >
         {isPublished ? "Unpublish" : "Publish"}
       </Button>
       <ConfirmModal onConfirm={onDelete}>
-        <Button size="sm" disabled={isLoading}>
+        <Button size="sm" disabled={isLoading} className="h-10 w-10 rounded-xl bg-[#6f5138] p-0 text-white hover:bg-[#5d422e]">
           <Trash className="w-4 h-4" />
         </Button>
       </ConfirmModal>

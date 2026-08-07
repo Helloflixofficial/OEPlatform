@@ -67,17 +67,17 @@ export const ChapterDescriptionForm = ({
   };
 
   return (
-    <div className="relative p-4 mt-6 border rounded-md bg-slate-100">
+    <div className="relative mt-6 rounded-2xl border border-[#eadfd3] bg-white p-5 shadow-[0_8px_30px_rgba(113,83,52,0.05)] sm:p-6">
       {form.formState.isSubmitting && (
-        <div className="absolute top-0 right-0 flex items-center justify-center w-full h-full rounded-md bg-slate-500/20">
-          <Loader2 className="w-6 h-6 animate-spin text-sky-700" />
+        <div className="absolute right-0 top-0 z-10 flex h-full w-full items-center justify-center rounded-2xl bg-[#6f5138]/10">
+          <Loader2 className="h-6 w-6 animate-spin text-[#6f5138]" />
         </div>
       )}
 
-      <div className="flex items-center justify-between font-medium">
+      <div className="flex items-center justify-between font-extrabold text-[#4d3929]">
         <span>Chapter description</span>
 
-        <Button variant="ghost" onClick={toggleEdit}>
+        <Button variant="ghost" className="rounded-xl px-3 text-xs font-bold text-[#80644d] hover:bg-[#faf3eb] hover:text-[#5d422e]" onClick={toggleEdit}>
           {isEditing ? (
             <>Cancel</>
           ) : (
@@ -92,8 +92,8 @@ export const ChapterDescriptionForm = ({
       {!isEditing && (
         <div
           className={cn(
-            "mt-2 text-sm",
-            !initialData.description && "text-slate-500 italic"
+            "mt-3 text-sm leading-6 text-[#6b5c50]",
+            !initialData.description && "italic text-[#a18e7d]"
           )}
         >
           {initialData.description ? (
@@ -125,7 +125,7 @@ export const ChapterDescriptionForm = ({
             />
 
             <div className="flex items-center gap-x-2">
-              <Button disabled={isSubmitting || !isValid} type="submit">
+              <Button className="rounded-xl bg-[#6f5138] font-bold text-white hover:bg-[#5d422e]" disabled={isSubmitting || !isValid} type="submit">
                 Save
               </Button>
             </div>

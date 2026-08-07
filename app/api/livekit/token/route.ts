@@ -1,5 +1,5 @@
 import { auth, currentUser } from "@clerk/nextjs";
-import { AccessToken } from "livekit-server-sdk";
+import { AccessToken, RoomServiceClient, TrackSource } from "livekit-server-sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { isTeacher } from "@/lib/teacher";
 
@@ -31,6 +31,25 @@ export async function GET(req: NextRequest) {
 
   const isHost = isTeacher(userId);
 
+  let restrictedByModeration = false;
+  try {
+    const livekit = new RoomServiceClient(
+      apiSecret ? (process.env.NEXT_PUBLIC_LIVEKIT_URL || "").replace(/^wss:\/\//, "https://").replace(/^ws:\/\//, "http://") : "",
+      apiKey,
+      apiSecret,
+    );
+    const activeRoom = (await livekit.listRooms([room]))[0];
+    if (activeRoom?.metadata) {
+      const moderation = JSON.parse(activeRoom.metadata);
+      restrictedByModeration = moderation.requireRaiseHand === true
+        && !isHost
+        && !moderation.approvedSpeakers?.includes(userId);
+    }
+  } catch (error) {
+    // Joining should remain available if the room has no moderation metadata.
+    console.warn("[LIVEKIT_TOKEN] Could not read room moderation state", error);
+  }
+
   // Pass Clerk profile picture + role as participant metadata
   // This lets the custom video UI show real avatars for everyone
   const metadata = JSON.stringify({
@@ -53,6 +72,9 @@ export async function GET(req: NextRequest) {
     canSubscribe: true,
     canPublishData: true,
     canUpdateOwnMetadata: true,
+    ...(restrictedByModeration && {
+      canPublishSources: [TrackSource.CAMERA, TrackSource.SCREEN_SHARE, TrackSource.SCREEN_SHARE_AUDIO],
+    }),
     // Teachers get full room admin rights
     ...(isHost && {
       roomAdmin: true,

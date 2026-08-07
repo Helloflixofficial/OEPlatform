@@ -33,7 +33,7 @@ export const Combobox = ({ option, value, onChange }: ComboboxProps) => {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between"
+          className="h-11 w-full justify-between rounded-xl border-[#e6d9cc] bg-[#fffdf9] text-[#6b5c50] hover:bg-[#fffaf4] hover:text-[#5d422e]"
         >
           {value
             ? option.find((option) => option.value === value)?.label
@@ -41,7 +41,7 @@ export const Combobox = ({ option, value, onChange }: ComboboxProps) => {
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0">
+      <PopoverContent className="w-full rounded-xl border-[#eadfd3] bg-white p-0 shadow-[0_12px_30px_rgba(113,83,52,0.12)]">
         <Command>
           <CommandInput placeholder="Search options..." />
           <CommandEmpty>No option found.</CommandEmpty>

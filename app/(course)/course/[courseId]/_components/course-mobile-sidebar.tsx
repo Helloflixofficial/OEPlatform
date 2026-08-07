@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 
 interface CourseMobileSidebarProps {
   progressCount: number
+  isPurchased: boolean
   course: Course & {
     chapters: (Chapter & {
       userProgress: UserProgress[] | null
@@ -16,6 +17,7 @@ interface CourseMobileSidebarProps {
 export const CourseMobileSidebar = ({
   course,
   progressCount,
+  isPurchased,
 }: CourseMobileSidebarProps) => {
   return (
     <Sheet>
@@ -24,7 +26,7 @@ export const CourseMobileSidebar = ({
       </SheetTrigger>
 
       <SheetContent side="left" className="p-0 bg-white w-72">
-        <CourseSidebar course={course} progressCount={progressCount} />
+        <CourseSidebar course={course} progressCount={progressCount} isPurchased={isPurchased} />
       </SheetContent>
     </Sheet>
   )

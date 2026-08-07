@@ -1,17 +1,19 @@
-import { Category, Chapter, Course } from '@prisma/client'
-
 import { db } from '@/lib/db'
-import { getProgress } from './get-progress'
 
-type CourseWithProgressWithCategory = Course & {
-    category: Category
-    chapters: Chapter[]
+type DashboardCourse = {
+    id: string
+    title: string
+    imageUrl: string | null
+    price: number | null
+    createdAt: Date
+    category: { id: string; name: string } | null
+    chapters: { id: string }[]
     progress: number | null
 }
 
 type DashboardCourses = {
-    completedCourses: CourseWithProgressWithCategory[]
-    coursesInProgress: CourseWithProgressWithCategory[]
+    completedCourses: DashboardCourse[]
+    coursesInProgress: DashboardCourse[]
 }
 
 export const getDashboardCourses = async (
@@ -24,12 +26,18 @@ export const getDashboardCourses = async (
             },
             select: {
                 course: {
-                    include: {
-                        category: true,
+                    select: {
+                        id: true,
+                        title: true,
+                        imageUrl: true,
+                        price: true,
+                        createdAt: true,
+                        category: { select: { id: true, name: true } },
                         chapters: {
                             where: {
                                 isPublished: true,
                             },
+                            select: { id: true },
                         },
                     },
                 },
@@ -39,12 +47,12 @@ export const getDashboardCourses = async (
             },
         })
 
-        const courses = purchasedCourses.map(
-            purchase => purchase.course,
-        ) as CourseWithProgressWithCategory[]
+        const courses = purchasedCourses.map(purchase => ({
+            ...purchase.course,
+            progress: 0,
+        }))
 
         // Batch progress calculation to avoid N+1 queries
-        const courseIds = courses.map(course => course.id)
         const allProgress = await db.userProgress.findMany({
             where: {
                 userId,
@@ -55,26 +63,18 @@ export const getDashboardCourses = async (
             },
             select: {
                 chapterId: true,
-                chapter: {
-                    select: {
-                        courseId: true,
-                    },
-                },
             },
         })
 
-        const progressMap = new Map<string, number>()
+        const completedChapterIds = new Set(allProgress.map(progress => progress.chapterId))
         courses.forEach(course => {
+            const completedCount = course.chapters.reduce(
+                (count, chapter) => count + (completedChapterIds.has(chapter.id) ? 1 : 0),
+                0,
+            )
             const publishedChapterIds = course.chapters.map(ch => ch.id)
-            const completedCount = allProgress.filter(p =>
-                publishedChapterIds.includes(p.chapterId) && p.chapter?.courseId === course.id
-            ).length
             const progress = publishedChapterIds.length > 0 ? (completedCount / publishedChapterIds.length) * 100 : 0
-            progressMap.set(course.id, progress)
-        })
-
-        courses.forEach(course => {
-            course.progress = progressMap.get(course.id) || 0
+            course.progress = progress
         })
 
         const completedCourses = courses.filter(course => course.progress === 100)

@@ -54,7 +54,7 @@ const ChapterIdPage = async ({
   const isCompleted = requiredFields.every(Boolean);
 
   return (
-    <>
+    <div className="min-h-screen bg-[#fbf8f4] text-[#4d3929]">
       {!chapter.isPublished && (
         <Banner
           variant="warning"
@@ -62,23 +62,24 @@ const ChapterIdPage = async ({
         />
       )}
 
-      <div className="p-6">
+      <div className="mx-auto max-w-[1500px] px-4 pb-12 pt-6 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           <div className="w-full">
             <Link
               href={`/teacher/courses/${params.courseId}`}
-              className="flex items-center mb-6 text-sm transition hover:opacity-75"
+              className="mb-6 flex items-center text-sm font-bold text-[#80644d] transition hover:text-[#5d422e]"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to course setup
             </Link>
 
-            <div className="flex items-center justify-between w-full">
+            <div className="flex w-full flex-col items-start justify-between gap-5 sm:flex-row sm:items-end">
               <div className="flex flex-col gap-y-2">
-                <h1 className="text-2xl font-medium">Chapter Creation</h1>
+                <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#ead7c1] bg-white px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.16em] text-[#9b6b43]">Course studio</div>
+                <h1 className="text-3xl font-black tracking-tight text-[#3f3024] sm:text-4xl">Chapter creation</h1>
 
-                <span className="text-sm text-slate-700">
-                  Complete all field {completionText}
+                <span className="text-sm text-[#887768]">
+                  Complete all fields {completionText}
                 </span>
               </div>
 
@@ -92,12 +93,12 @@ const ChapterIdPage = async ({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 mt-16 md:grid-cols-2">
+        <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-2">
           <div className="space-y-6">
-            <div className="flex items-center gap-x-2">
+            <div className="flex items-center gap-x-3">
               <IconBadge icon={LayoutDashboard} />
 
-              <h2 className="text-xl">Customize your chapter</h2>
+              <h2 className="text-xl font-extrabold tracking-tight text-[#4d3929]">Customize your chapter</h2>
             </div>
 
             <ChapterTitleForm
@@ -113,9 +114,9 @@ const ChapterIdPage = async ({
             />
 
             <div>
-              <div className="flex items-center gap-x-2">
+              <div className="flex items-center gap-x-3">
                 <IconBadge icon={Eye} />
-                <h2 className="text-xl">Access Settings</h2>
+                <h2 className="text-xl font-extrabold tracking-tight text-[#4d3929]">Access settings</h2>
               </div>
 
               <ChapterAccessForm
@@ -127,9 +128,9 @@ const ChapterIdPage = async ({
           </div>
 
           <div>
-            <div className="flex items-center gap-x-2">
+            <div className="flex items-center gap-x-3">
               <IconBadge icon={Video} />
-              <h2 className="text-xl">Add a video</h2>
+              <h2 className="text-xl font-extrabold tracking-tight text-[#4d3929]">Add a video</h2>
             </div>
 
             <ChapterVideoForm
@@ -140,7 +141,7 @@ const ChapterIdPage = async ({
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

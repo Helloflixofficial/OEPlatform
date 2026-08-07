@@ -61,11 +61,11 @@ export const DescriptionForm = ({
   };
 
   return (
-    <div className="p-4 mt-6 border rounded-md bg-slate-100">
-      <div className="flex items-center justify-between font-medium">
+    <div className="mt-6 rounded-2xl border border-[#eadfd3] bg-white p-5 shadow-[0_8px_30px_rgba(113,83,52,0.05)] sm:p-6">
+      <div className="flex items-center justify-between font-extrabold text-[#4d3929]">
         <span>Course description</span>
 
-        <Button variant="ghost" onClick={toggleEdit}>
+        <Button variant="ghost" className="rounded-xl px-3 text-xs font-bold text-[#80644d] hover:bg-[#faf3eb] hover:text-[#5d422e]" onClick={toggleEdit}>
           {isEditing ? (
             <>Cancel</>
           ) : (
@@ -80,8 +80,8 @@ export const DescriptionForm = ({
       {!isEditing && (
         <p
           className={cn(
-            "mt-2 text-sm",
-            !initialData.description && "text-slate-500 italic"
+            "mt-3 text-sm leading-6 text-[#6b5c50]",
+            !initialData.description && "italic text-[#a18e7d]"
           )}
         >
           {initialData.description || "No description"}
@@ -103,6 +103,7 @@ export const DescriptionForm = ({
                     <Textarea
                       disabled={isSubmitting}
                       placeholder='e.g. "This course is about..."'
+                      className="rounded-xl border-[#e6d9cc] bg-[#fffdf9] text-[#4d3929] placeholder:text-[#b5a699] focus-visible:border-[#bd8956] focus-visible:ring-[#d7b28b]/30"
                       {...field}
                     />
                   </FormControl>
@@ -113,7 +114,7 @@ export const DescriptionForm = ({
             />
 
             <div className="flex items-center gap-x-2">
-              <Button disabled={isSubmitting || !isValid} type="submit">
+              <Button className="rounded-xl bg-[#6f5138] font-bold text-white hover:bg-[#5d422e]" disabled={isSubmitting || !isValid} type="submit">
                 Save
               </Button>
             </div>

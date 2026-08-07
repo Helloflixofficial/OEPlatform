@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 
 import { db } from "@/lib/db";
+import { getCategories } from "@/lib/catalog";
 import { Banner } from "@/components/banner";
 import { Actions } from "./_components/actions";
 import { IconBadge } from "@/components/icon-badge";
@@ -32,30 +33,16 @@ const CourseIdPage = async ({
     return redirect("/");
   }
 
-  const course = await db.course.findUnique({
-    where: {
-      userId,
-      id: params.courseId,
-    },
-    include: {
-      attachments: {
-        orderBy: {
-          createdAt: "desc",
-        },
+  const [course, categories] = await Promise.all([
+    db.course.findUnique({
+      where: { userId, id: params.courseId },
+      include: {
+        attachments: { orderBy: { createdAt: "desc" } },
+        chapters: { orderBy: { position: "asc" } },
       },
-      chapters: {
-        orderBy: {
-          position: "asc",
-        },
-      },
-    },
-  });
-
-  const categories = await db.category.findMany({
-    orderBy: {
-      name: "asc",
-    },
-  });
+    }),
+    getCategories(),
+  ]);
 
   if (!course || course.userId !== userId) {
     return redirect("/");
@@ -78,7 +65,7 @@ const CourseIdPage = async ({
   const isCompleted = requiredFields.every(Boolean);
 
   return (
-    <>
+    <div className="min-h-screen bg-[#fbf8f4] text-[#4d3929]">
       {!course.isPublished && (
         <Banner
           variant="warning"
@@ -86,12 +73,13 @@ const CourseIdPage = async ({
         />
       )}
 
-      <div className="p-6">
-        <div className="flex items-center justify-between">
+      <div className="mx-auto max-w-[1500px] px-4 pb-12 pt-6 sm:px-6 lg:px-8">
+        <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div className="flex flex-col gap-y-2">
-            <h1 className="text-2xl font-medium">Course setup</h1>
+            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#ead7c1] bg-white px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.16em] text-[#9b6b43]">Course studio</div>
+            <h1 className="text-3xl font-black tracking-tight text-[#3f3024] sm:text-4xl">Course setup</h1>
 
-            <span className="text-sm text-slate-700">
+            <span className="text-sm text-[#887768]">
               Complete all fields {completionText}
             </span>
           </div>
@@ -103,11 +91,11 @@ const CourseIdPage = async ({
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-6 mt-16 md:grid-cols-2">
+        <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-2">
           <div>
-            <div className="flex items-center gap-x-2">
+            <div className="flex items-center gap-x-3">
               <IconBadge icon={LayoutDashboard} />
-              <h2 className="text-xl">Customize your course</h2>
+              <h2 className="text-xl font-extrabold tracking-tight text-[#4d3929]">Customize your course</h2>
             </div>
 
             <TitleForm initialData={course} courseId={course.id} />
@@ -125,30 +113,30 @@ const CourseIdPage = async ({
 
           <div className="space-y-6">
             <div>
-              <div className="flex items-center gap-x-2">
+              <div className="flex items-center gap-x-3">
                 <IconBadge icon={ListChecks} />
 
-                <h2 className="text-xl">Course chapters</h2>
+                <h2 className="text-xl font-extrabold tracking-tight text-[#4d3929]">Course chapters</h2>
               </div>
 
               <ChaptersForm initialData={course} courseId={course.id} />
             </div>
 
             <div>
-              <div className="flex items-center gap-x-2">
+              <div className="flex items-center gap-x-3">
                 <IconBadge icon={CircleDollarSign} />
 
-                <h2 className="text-xl">Sell your course</h2>
+                <h2 className="text-xl font-extrabold tracking-tight text-[#4d3929]">Sell your course</h2>
               </div>
 
               <PriceForm courseId={course.id} initialData={course} />
             </div>
 
             <div>
-              <div className="flex items-center gap-x-2">
+              <div className="flex items-center gap-x-3">
                 <IconBadge icon={File} />
 
-                <h2 className="text-xl">Resources & Attachments</h2>
+                <h2 className="text-xl font-extrabold tracking-tight text-[#4d3929]">Resources & Attachments</h2>
               </div>
 
               <AttachmentForm initialData={course} courseId={course.id} />
@@ -156,7 +144,7 @@ const CourseIdPage = async ({
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

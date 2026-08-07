@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs'
 import { redirect } from 'next/navigation'
-import { db } from '@/lib/db'
 import { getCourses } from '@/Actions/get-courses'
+import { getCategories } from '@/lib/catalog'
 import { SearchClient } from './_components/SearchClient'
 
 interface SearchPageProps {
@@ -19,8 +19,10 @@ const SearchPage = async ({ searchParams }: SearchPageProps) => {
   let courses: any[] = []
 
   try {
-    categories = await db.category.findMany({ orderBy: { name: 'asc' } })
-    courses = await getCourses({ userId })
+    ;[categories, courses] = await Promise.all([
+      getCategories(),
+      getCourses({ userId, title: searchParams?.title, categoryId: searchParams?.categoryId }),
+    ])
   } catch (error) {
     console.error('[SEARCH_PAGE_ERROR]', error)
   }

@@ -18,6 +18,72 @@ model MeetingSession {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([hostId, createdAt])
+}
+
+model CommunitySpace {
+  id          String          @id @default(uuid())
+  name        String
+  slug        String
+  description String?
+  color       String          @default("#bd8956")
+  ownerId     String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  posts       CommunityPost[]
+
+  @@unique([ownerId, slug])
+  @@index([ownerId])
+  @@index([ownerId, createdAt])
+}
+
+model CommunitySettings {
+  id                   String   @id @default(uuid())
+  ownerId              String   @unique
+  communityName        String   @default("Community")
+  tagline              String   @default("Learn together, grow together.")
+  welcomeMessage       String?
+  allowStudentPosts    Boolean  @default(true)
+  allowStudentComments Boolean  @default(true)
+  requirePostApproval  Boolean  @default(false)
+  showMemberCount      Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model CommunityPost {
+  id             String             @id @default(uuid())
+  title          String
+  content        String
+  authorId       String
+  ownerId        String
+  spaceId        String
+  isPinned       Boolean            @default(false)
+  isAnnouncement Boolean            @default(false)
+  isApproved     Boolean            @default(true)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  space          CommunitySpace     @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  comments       CommunityComment[]
+
+  @@index([ownerId, createdAt])
+  @@index([ownerId, isApproved, createdAt])
+  @@index([spaceId, createdAt])
+}
+
+model CommunityComment {
+  id        String        @id @default(uuid())
+  content   String
+  authorId  String
+  ownerId   String
+  postId    String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId, createdAt])
+  @@index([postId, createdAt])
 }
 
 model Course {
@@ -37,6 +103,7 @@ model Course {
   category    Category?    @relation(fields: [categoryId], references: [id])
 
   @@index([categoryId])
+  @@index([userId])
   @@map("title")
 }
 
@@ -74,6 +141,7 @@ model Chapter {
   userProgress UserProgress[]
 
   @@index([courseId])
+  @@index([courseId, isPublished, position])
 }
 
 model MuxData {
@@ -95,6 +163,7 @@ model UserProgress {
 
   @@unique([userId, chapterId])
   @@index([chapterId])
+  @@index([userId, chapterId, isCompleted])
 }
 
 model Purchase {
@@ -107,6 +176,7 @@ model Purchase {
 
   @@unique([userId, courseId])
   @@index([courseId])
+  @@index([userId, createdAt])
 }
 
 model StripeCustomer {

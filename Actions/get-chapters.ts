@@ -14,78 +14,41 @@ export const getChapter = async ({
     chapterId,
 }: GetChapterProps) => {
     try {
-        const purchase = await db.purchase.findUnique({
-            where: {
-                userId_courseId: {
-                    userId,
-                    courseId,
-                },
-            },
-        })
-
-        const course = await db.course.findUnique({
-            where: {
-                id: courseId,
-                isPublished: true,
-            },
-            select: {
-                price: true,
-            },
-        })
-
-        const chapter = await db.chapter.findUnique({
-            where: {
-                courseId,
-                id: chapterId,
-                isPublished: true,
-            },
-        })
+        const [purchase, course, chapter] = await Promise.all([
+            db.purchase.findUnique({
+                where: { userId_courseId: { userId, courseId } },
+            }),
+            db.course.findUnique({
+                where: { id: courseId, isPublished: true },
+                select: { price: true },
+            }),
+            db.chapter.findUnique({
+                where: { courseId, id: chapterId, isPublished: true },
+            }),
+        ])
 
         if (!chapter || !course) {
             throw new Error('Chapter or course no found')
         }
 
-        let muxData = null
-        let attachments: Attachment[] = []
-        let nextChapter: Chapter | null = null
-
-        if (purchase) {
-            attachments = await db.attachment.findMany({
-                where: {
-                    courseId,
-                },
-            })
-        }
-
-        if (chapter.isFree || purchase) {
-            muxData = await db.muxData.findUnique({
-                where: {
-                    chapterId,
-                },
-            })
-
-            nextChapter = await db.chapter.findFirst({
-                where: {
-                    courseId,
-                    isPublished: true,
-                    position: {
-                        gt: chapter?.position,
-                    },
-                },
-                orderBy: {
-                    position: 'asc',
-                },
-            })
-        }
-
-        const userProgress = await db.userProgress.findUnique({
-            where: {
-                userId_chapterId: {
-                    userId,
-                    chapterId,
-                },
-            },
-        })
+        const hasAccess = chapter.isFree || !!purchase
+        const [userProgress, attachments, muxData, nextChapter] = await Promise.all([
+            db.userProgress.findUnique({
+                where: { userId_chapterId: { userId, chapterId } },
+            }),
+            purchase
+                ? db.attachment.findMany({ where: { courseId } })
+                : Promise.resolve([] as Attachment[]),
+            hasAccess
+                ? db.muxData.findUnique({ where: { chapterId } })
+                : Promise.resolve(null),
+            hasAccess
+                ? db.chapter.findFirst({
+                    where: { courseId, isPublished: true, position: { gt: chapter.position } },
+                    orderBy: { position: 'asc' },
+                })
+                : Promise.resolve(null),
+        ])
 
         return {
             course,

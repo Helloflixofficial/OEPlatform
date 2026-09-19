@@ -12,7 +12,7 @@ export const NavbarRoutes = ({ showContext = false }: { showContext?: boolean })
   const isTeacherPage = Pathname?.startsWith("/teacher");
   const isPlayerPage = Pathname?.includes("/chapter");
   const isSearchPage = Pathname === "/search";
-  const contextTitle = isTeacherPage ? "Teacher workspace" : isPlayerPage ? "Learning space" : "My learning";
+  const contextTitle = isTeacherPage ? "Teaching studio" : isPlayerPage ? "Learning space" : "My learning";
   const contextDescription = isTeacherPage ? "Create, teach, and track" : isPlayerPage ? "Continue your course" : "Explore something new";
 
   return (

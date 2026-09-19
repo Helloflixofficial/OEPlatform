@@ -9,9 +9,10 @@ interface SidebarItemsProps {
   label: string;
   href: string;
   collapsed?: boolean;
+  onNavigate?: () => void;
 }
 
-export const SidebarItems = ({ icon: Icon, label, href, collapsed = false }: SidebarItemsProps) => {
+export const SidebarItems = ({ icon: Icon, label, href, collapsed = false, onNavigate }: SidebarItemsProps) => {
   const pathname = usePathname();
   const isActive =
     (pathname === "/" && href === "/") ||
@@ -22,23 +23,24 @@ export const SidebarItems = ({ icon: Icon, label, href, collapsed = false }: Sid
     <Link
       href={href}
       prefetch
+      onClick={onNavigate}
       aria-current={isActive ? "page" : undefined}
       title={collapsed ? label : undefined}
       className={cn(
-        "group relative mx-2 flex h-14 w-[calc(100%-1rem)] items-center rounded-2xl border transition-all duration-200",
+        "group relative mx-2 flex h-11 w-[calc(100%-1rem)] items-center rounded-xl border transition-all duration-200 md:h-12",
         collapsed ? "justify-center" : "gap-x-3 px-3",
         isActive
-          ? "border-[#ead7c1] bg-[linear-gradient(135deg,#fffdf9_0%,#f8efe4_100%)] text-[#62452e] shadow-[0_8px_20px_rgba(151,111,69,0.13)]"
-          : "border-transparent text-[#6f645a] hover:-translate-y-0.5 hover:bg-white/90 hover:text-[#4d3929] hover:shadow-[0_6px_16px_rgba(151,111,69,0.08)]"
+          ? "border-[#ead7c1] bg-[linear-gradient(135deg,#fffdf9_0%,#f8efe4_100%)] text-[#62452e] shadow-[0_6px_16px_rgba(151,111,69,0.1)]"
+          : "border-transparent text-[#6f645a] hover:bg-white/90 hover:text-[#4d3929]"
       )}
     >
       {isActive && <span className="absolute -left-2 top-1/2 h-8 w-1.5 -translate-y-1/2 rounded-r-full bg-[#bd8956] shadow-[0_0_12px_rgba(189,137,86,0.45)]" />}
 
       <span className={cn(
-        "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border transition-all duration-200",
-        isActive ? "border-[#efd8bb] bg-[#fffaf3] text-[#a87343] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.7)]" : "border-[#eee3d6] bg-white/70 text-[#887768] group-hover:border-[#ead7c1] group-hover:bg-[#FBF6EE] group-hover:text-[#a87343]"
+        "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border transition-all duration-200",
+        isActive ? "border-transparent bg-transparent text-[#a87343]" : "border-transparent bg-transparent text-[#887768] group-hover:text-[#a87343]"
       )}>
-        <Icon size={18} strokeWidth={isActive ? 2.3 : 2} className="transition-transform duration-200 group-hover:scale-105" />
+        <Icon size={16} strokeWidth={isActive ? 2.2 : 1.9} className="transition-transform duration-200 group-hover:scale-105" />
       </span>
 
       {/* Label — only rendered (not just hidden) when not collapsed to avoid layout issues */}

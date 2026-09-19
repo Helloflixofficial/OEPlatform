@@ -42,7 +42,7 @@ const SidebarFooter = ({ expanded }: { expanded: boolean }) => (
   </div>
 );
 
-const SidebarShell = ({ expanded }: { expanded: boolean }) => (
+const SidebarShell = ({ expanded, onNavigate }: { expanded: boolean; onNavigate?: () => void }) => (
   <div className="relative flex h-full min-h-0 flex-col overflow-hidden border-r border-[#e8dccc] bg-[#FBF6EE] shadow-[8px_0_28px_rgba(151,111,69,0.06)]">
 
     <div className={`relative flex h-[80px] flex-shrink-0 items-center border-b border-[#e8dccc] ${expanded ? "px-4" : "px-3"}`}>
@@ -50,7 +50,7 @@ const SidebarShell = ({ expanded }: { expanded: boolean }) => (
     </div>
 
     <div className="relative min-h-0 flex-1 overflow-y-auto py-4">
-      <SidebarRoutes collapsed={!expanded} />
+      <SidebarRoutes collapsed={!expanded} onNavigate={onNavigate} />
     </div>
 
     <SidebarFooter expanded={expanded} />
@@ -58,8 +58,8 @@ const SidebarShell = ({ expanded }: { expanded: boolean }) => (
 );
 
 // Used inside the mobile Sheet — always expanded, no hover logic.
-export const SidebarStatic = () => (
-  <div className="h-full w-60"><SidebarShell expanded /></div>
+export const SidebarStatic = ({ onNavigate }: { onNavigate?: () => void }) => (
+  <div className="h-full w-full"><SidebarShell expanded onNavigate={onNavigate} /></div>
 );
 
 // Desktop collapsible sidebar.
@@ -71,6 +71,7 @@ export const Sidebar = () => {
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
       className={`sidebar-transition h-full overflow-hidden ${expanded ? "w-60" : "w-16"}`}
+      aria-label="Primary navigation"
     >
       <SidebarShell expanded={expanded} />
     </div>

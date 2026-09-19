@@ -3,19 +3,19 @@ import { Sidebar } from "./_components/sidebar";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="h-full">
+    <div className="min-h-[100dvh]">
       {/* Navbar — on mobile: full width. On md+: offset by collapsed sidebar (w-16 = 64px) */}
-      <div className="h-[80px] fixed inset-y-0 w-full z-50 md:pl-16">
+      <div className="fixed inset-x-0 top-0 z-40 h-[80px] w-full md:pl-16">
         <Navbar />
       </div>
 
       {/* Desktop sidebar — hidden on mobile, shows collapsed icon strip on md+ */}
-      <div className="hidden md:flex h-full flex-col fixed inset-y-0 z-50">
+      <div className="fixed inset-y-0 left-0 z-50 hidden h-[100dvh] flex-col md:flex">
         <Sidebar />
       </div>
 
       {/* Main content — no left padding on mobile, collapsed sidebar width on md+ */}
-      <main className="pt-[80px] min-h-screen md:pl-16">
+      <main className="min-h-[100dvh] overflow-x-hidden pt-[80px] md:pl-16">
         {children}
       </main>
     </div>

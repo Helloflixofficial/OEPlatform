@@ -32,7 +32,7 @@ export default async function CommunityPage() {
   return (
     <StudentCommunity
       currentUserId={userId}
-      canManage={isTeacher(userId)}
+      canManage={false}
       initialSettings={{
         communityName: settings.communityName,
         tagline: settings.tagline,

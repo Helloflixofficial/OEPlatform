@@ -8,9 +8,11 @@ import {
   Check,
   Hash,
   LayoutGrid,
+  Link2,
   MessageCircle,
   MessagesSquare,
   Megaphone,
+  Pencil,
   Pin,
   PinOff,
   Plus,
@@ -49,6 +51,10 @@ type Post = {
   isApproved: boolean;
   createdAt: string;
   updatedAt: string;
+  mediaUrl: string | null;
+  mediaType: string | null;
+  linkUrl: string | null;
+  linkTitle: string | null;
   space: { id: string; name: string; color: string } | null;
   comments: Comment[];
 };
@@ -88,6 +94,33 @@ function Avatar({ label, accent = "#bd8956" }: { label: string; accent?: string 
   );
 }
 
+function EditPostForm({ post, onSaved, onCancel }: { post: Post; onSaved(post: Post): void; onCancel(): void }) {
+  const [title, setTitle] = useState(post.title);
+  const [content, setContent] = useState(post.content);
+  const [mediaUrl, setMediaUrl] = useState(post.mediaUrl || "");
+  const [mediaType, setMediaType] = useState(post.mediaType || "image");
+  const [linkUrl, setLinkUrl] = useState(post.linkUrl || "");
+  const [linkTitle, setLinkTitle] = useState(post.linkTitle || "");
+  const [saving, setSaving] = useState(false);
+
+  async function save(event: FormEvent) {
+    event.preventDefault();
+    if (!title.trim() || !content.trim() || saving) return;
+    setSaving(true);
+    try {
+      const updated = await request<Post>(`/api/community/posts/${post.id}`, { method: "PATCH", body: JSON.stringify({ title, content, mediaUrl, mediaType: mediaUrl ? mediaType : null, linkUrl, linkTitle }) });
+      onSaved(updated);
+      toast.success("Post updated");
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return <form onSubmit={save} className="mt-4 rounded-2xl border border-[#e6d4bd] bg-[#fffaf5] p-4"><div className="grid gap-3"><input value={title} onChange={(event) => setTitle(event.target.value)} maxLength={120} className="rounded-xl border border-[#e6d9cc] px-3 py-2.5 text-sm font-semibold outline-none focus:border-[#bd8956]" /><textarea value={content} onChange={(event) => setContent(event.target.value)} maxLength={10000} rows={5} className="w-full resize-y rounded-xl border border-[#e6d9cc] px-3 py-3 text-sm leading-6 outline-none focus:border-[#bd8956]" /><div className="grid gap-3 sm:grid-cols-2"><div><label className="text-[11px] font-extrabold uppercase tracking-wider text-[#9d8b7a]">Image/GIF URL</label><input value={mediaUrl} onChange={(event) => setMediaUrl(event.target.value)} placeholder="https://..." className="mt-1 w-full rounded-lg border border-[#e6d9cc] px-3 py-2 text-xs outline-none" /><div className="mt-2 flex gap-2"><button type="button" onClick={() => setMediaType("image")} className={`rounded-lg px-2.5 py-1.5 text-xs font-bold ${mediaType === "image" ? "bg-[#f5e8d9] text-[#6f5138]" : "text-[#9d8b7a]"}`}>Image</button><button type="button" onClick={() => setMediaType("gif")} className={`rounded-lg px-2.5 py-1.5 text-xs font-bold ${mediaType === "gif" ? "bg-[#f5e8d9] text-[#6f5138]" : "text-[#9d8b7a]"}`}>GIF</button></div></div><div><label className="text-[11px] font-extrabold uppercase tracking-wider text-[#9d8b7a]">Link card</label><input value={linkUrl} onChange={(event) => setLinkUrl(event.target.value)} placeholder="https://example.com" className="mt-1 w-full rounded-lg border border-[#e6d9cc] px-3 py-2 text-xs outline-none" /><input value={linkTitle} onChange={(event) => setLinkTitle(event.target.value)} placeholder="Link title (optional)" maxLength={120} className="mt-2 w-full rounded-lg border border-[#e6d9cc] px-3 py-2 text-xs outline-none" /></div></div></div><div className="mt-4 flex justify-end gap-2"><button type="button" onClick={onCancel} className="rounded-xl px-4 py-2.5 text-xs font-bold text-[#806b59]">Cancel</button><button type="submit" disabled={saving || !title.trim() || !content.trim()} className="rounded-xl bg-[#6f5138] px-4 py-2.5 text-xs font-bold text-white disabled:opacity-40">{saving ? "Saving..." : "Save changes"}</button></div></form>;
+}
+
 function PostCard({
   post,
   currentUserId,
@@ -104,6 +137,7 @@ function PostCard({
   const [showComments, setShowComments] = useState(false);
   const [comment, setComment] = useState("");
   const [sending, setSending] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   async function submitComment(event: FormEvent) {
     event.preventDefault();
@@ -191,6 +225,7 @@ function PostCard({
             {!post.isApproved && <span className="mt-2 inline-flex rounded-full bg-[#fff4d8] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[#a66d2c]">Pending approval</span>}
           </div>
           <div className="flex shrink-0 items-center gap-1">
+            <button type="button" onClick={() => setEditing((value) => !value)} title="Edit post" className="rounded-lg p-2 text-[#9d8b7a] transition hover:bg-[#faf5ef] hover:text-[#6f5138]"><Pencil className="h-4 w-4" /></button>
             <button type="button" onClick={togglePin} title={post.isPinned ? "Unpin post" : "Pin post"} className={`rounded-lg p-2 transition ${post.isPinned ? "bg-[#fff2d8] text-[#a66d2c]" : "text-[#9d8b7a] hover:bg-[#faf5ef] hover:text-[#6f5138]"}`}>
               {post.isPinned ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
             </button>
@@ -198,7 +233,7 @@ function PostCard({
           </div>
         </div>
 
-        <p className="mt-5 whitespace-pre-wrap break-words text-sm leading-7 text-[#66584d]">{post.content}</p>
+        {editing ? <EditPostForm post={post} onSaved={(updated) => { onUpdate(updated); setEditing(false); }} onCancel={() => setEditing(false)} /> : <><p className="mt-5 whitespace-pre-wrap break-words text-sm leading-7 text-[#66584d]">{post.content}</p>{post.mediaUrl && <img src={post.mediaUrl} alt={post.mediaType === "gif" ? "Shared GIF" : "Shared image"} className="mt-4 max-h-[460px] w-full rounded-xl border border-[#eee4da] object-contain" />}{post.linkUrl && <a href={post.linkUrl} target="_blank" rel="noreferrer" className="mt-4 flex items-center gap-3 rounded-xl border border-[#eadfd3] bg-[#fbf8f4] p-3 transition hover:border-[#bd8956]"><Link2 className="h-4 w-4 text-[#9b6b43]" /><span className="min-w-0"><span className="block truncate text-sm font-bold text-[#5b432f]">{post.linkTitle || post.linkUrl}</span><span className="block truncate text-xs text-[#9d8b7a]">{post.linkUrl}</span></span></a>}</>}
 
         <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-[#f1e9e1] pt-4">
           <button type="button" onClick={() => setShowComments((value) => !value)} className="inline-flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-bold text-[#7e6b5b] transition hover:bg-[#faf5ef] hover:text-[#5b432f]"><MessageCircle className="h-4 w-4" /> {post.comments.length} {post.comments.length === 1 ? "comment" : "comments"}</button>
@@ -242,6 +277,10 @@ export function CommunityDashboard({ initialSpaces, initialPosts, currentUserId 
   const [spaceDescription, setSpaceDescription] = useState("");
   const [postTitle, setPostTitle] = useState("");
   const [postContent, setPostContent] = useState("");
+  const [mediaUrl, setMediaUrl] = useState("");
+  const [mediaType, setMediaType] = useState("image");
+  const [linkUrl, setLinkUrl] = useState("");
+  const [linkTitle, setLinkTitle] = useState("");
   const [postSpaceId, setPostSpaceId] = useState(initialSpaces[0]?.id || "");
   const [isAnnouncement, setIsAnnouncement] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -276,11 +315,14 @@ export function CommunityDashboard({ initialSpaces, initialPosts, currentUserId 
     if (!postTitle.trim() || !postContent.trim() || !postSpaceId || saving) return;
     setSaving(true);
     try {
-      const post = await request<Post>("/api/community/posts", { method: "POST", body: JSON.stringify({ title: postTitle, content: postContent, spaceId: postSpaceId, isAnnouncement }) });
+      const post = await request<Post>("/api/community/posts", { method: "POST", body: JSON.stringify({ title: postTitle, content: postContent, spaceId: postSpaceId, isAnnouncement, mediaUrl, mediaType: mediaUrl ? mediaType : null, linkUrl, linkTitle }) });
       setPosts((current) => [post, ...current]);
       setSpaces((current) => current.map((space) => space.id === post.spaceId ? { ...space, postCount: space.postCount + 1 } : space));
       setPostTitle("");
       setPostContent("");
+      setMediaUrl("");
+      setLinkUrl("");
+      setLinkTitle("");
       setIsAnnouncement(false);
       setShowComposer(false);
       toast.success(isAnnouncement ? "Announcement published" : "Post published");
@@ -349,7 +391,7 @@ export function CommunityDashboard({ initialSpaces, initialPosts, currentUserId 
           </aside>
 
           <main className="min-w-0 space-y-5">
-            {showComposer && <form onSubmit={createPost} className="rounded-2xl border border-[#e6d4bd] bg-white p-5 shadow-[0_8px_30px_rgba(113,83,52,0.06)] sm:p-6"><div className="flex items-center justify-between"><div><p className="text-sm font-extrabold text-[#4d3929]">Create a post</p><p className="mt-1 text-xs text-[#9d8b7a]">Share an update, prompt, or helpful resource.</p></div><button type="button" onClick={() => setShowComposer(false)} className="rounded-lg p-2 text-[#ad9b8b] hover:bg-[#faf5ef]"><X className="h-4 w-4" /></button></div><div className="mt-5 grid gap-3 sm:grid-cols-[minmax(0,1fr)_190px]"><input value={postTitle} onChange={(event) => setPostTitle(event.target.value)} placeholder="Post title" maxLength={120} className="rounded-xl border border-[#e6d9cc] px-3.5 py-3 text-sm font-semibold outline-none placeholder:text-[#b5a699] focus:border-[#bd8956]" /><select value={postSpaceId} onChange={(event) => setPostSpaceId(event.target.value)} className="rounded-xl border border-[#e6d9cc] bg-white px-3.5 py-3 text-sm text-[#6b5c50] outline-none focus:border-[#bd8956]">{spaces.map((space) => <option key={space.id} value={space.id}>{space.name}</option>)}</select></div><textarea value={postContent} onChange={(event) => setPostContent(event.target.value)} placeholder="What would you like to share?" maxLength={10000} rows={5} className="mt-3 w-full resize-y rounded-xl border border-[#e6d9cc] px-3.5 py-3 text-sm leading-6 outline-none placeholder:text-[#b5a699] focus:border-[#bd8956]" /><div className="mt-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><label className="inline-flex cursor-pointer items-center gap-2 text-xs font-bold text-[#7e6b5b]"><input type="checkbox" checked={isAnnouncement} onChange={(event) => setIsAnnouncement(event.target.checked)} className="h-4 w-4 accent-[#6f5138]" /> Mark as announcement</label><button disabled={!postTitle.trim() || !postContent.trim() || !postSpaceId || saving} type="submit" className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#6f5138] px-4 py-2.5 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-40"><Send className="h-3.5 w-3.5" /> Publish post</button></div></form>}
+            {showComposer && <form onSubmit={createPost} className="rounded-2xl border border-[#e6d4bd] bg-white p-5 shadow-[0_8px_30px_rgba(113,83,52,0.06)] sm:p-6"><div className="flex items-center justify-between"><div><p className="text-sm font-extrabold text-[#4d3929]">Create a post</p><p className="mt-1 text-xs text-[#9d8b7a]">Share an update, prompt, or helpful resource.</p></div><button type="button" onClick={() => setShowComposer(false)} className="rounded-lg p-2 text-[#ad9b8b] hover:bg-[#faf5ef]"><X className="h-4 w-4" /></button></div><div className="mt-5 grid gap-3 sm:grid-cols-[minmax(0,1fr)_190px]"><input value={postTitle} onChange={(event) => setPostTitle(event.target.value)} placeholder="Post title" maxLength={120} className="rounded-xl border border-[#e6d9cc] px-3.5 py-3 text-sm font-semibold outline-none placeholder:text-[#b5a699] focus:border-[#bd8956]" /><select value={postSpaceId} onChange={(event) => setPostSpaceId(event.target.value)} className="rounded-xl border border-[#e6d9cc] bg-white px-3.5 py-3 text-sm text-[#6b5c50] outline-none focus:border-[#bd8956]">{spaces.map((space) => <option key={space.id} value={space.id}>{space.name}</option>)}</select></div><textarea value={postContent} onChange={(event) => setPostContent(event.target.value)} placeholder="What would you like to share?" maxLength={10000} rows={5} className="mt-3 w-full resize-y rounded-xl border border-[#e6d9cc] px-3.5 py-3 text-sm leading-6 outline-none placeholder:text-[#b5a699] focus:border-[#bd8956]" /><div className="mt-4 grid gap-3 rounded-xl border border-[#eee1d4] bg-[#fffaf5] p-3 sm:grid-cols-2"><div><label className="text-[11px] font-extrabold uppercase tracking-wider text-[#9d8b7a]">Image/GIF URL</label><input value={mediaUrl} onChange={(event) => setMediaUrl(event.target.value)} placeholder="https://..." className="mt-1 w-full rounded-lg border border-[#e6d9cc] px-3 py-2 text-xs outline-none" /><div className="mt-2 flex gap-2"><button type="button" onClick={() => setMediaType("image")} className={`rounded-lg px-2.5 py-1.5 text-xs font-bold ${mediaType === "image" ? "bg-[#f5e8d9] text-[#6f5138]" : "text-[#9d8b7a]"}`}>Image</button><button type="button" onClick={() => setMediaType("gif")} className={`rounded-lg px-2.5 py-1.5 text-xs font-bold ${mediaType === "gif" ? "bg-[#f5e8d9] text-[#6f5138]" : "text-[#9d8b7a]"}`}>GIF</button></div></div><div><label className="text-[11px] font-extrabold uppercase tracking-wider text-[#9d8b7a]">Link card</label><input value={linkUrl} onChange={(event) => setLinkUrl(event.target.value)} placeholder="https://example.com" className="mt-1 w-full rounded-lg border border-[#e6d9cc] px-3 py-2 text-xs outline-none" /><input value={linkTitle} onChange={(event) => setLinkTitle(event.target.value)} placeholder="Link title (optional)" maxLength={120} className="mt-2 w-full rounded-lg border border-[#e6d9cc] px-3 py-2 text-xs outline-none" /></div></div><div className="mt-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><label className="inline-flex cursor-pointer items-center gap-2 text-xs font-bold text-[#7e6b5b]"><input type="checkbox" checked={isAnnouncement} onChange={(event) => setIsAnnouncement(event.target.checked)} className="h-4 w-4 accent-[#6f5138]" /> Mark as announcement</label><button disabled={!postTitle.trim() || !postContent.trim() || !postSpaceId || saving} type="submit" className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#6f5138] px-4 py-2.5 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-40"><Send className="h-3.5 w-3.5" /> Publish post</button></div></form>}
 
             <div className="flex items-center justify-between"><div><h2 className="text-lg font-black text-[#4d3929]">{selectedSpaceId === "all" ? "Latest conversation" : spaces.find((space) => space.id === selectedSpaceId)?.name}</h2><p className="mt-1 text-xs text-[#9d8b7a]">{visiblePosts.length ? `${visiblePosts.length} ${visiblePosts.length === 1 ? "post" : "posts"}` : "No posts here yet"}</p></div><div className="hidden items-center gap-2 text-xs font-semibold text-[#a18e7e] sm:flex"><Users className="h-4 w-4" /> Your private teaching community</div></div>
             {visiblePosts.length === 0 && <div className="rounded-2xl border border-dashed border-[#dcc9b8] bg-white px-6 py-16 text-center"><div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#fbf0e3] text-[#b47e4b]"><MessagesSquare className="h-7 w-7" /></div><h3 className="mt-5 text-lg font-extrabold text-[#4d3929]">Start the conversation</h3><p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-[#9d8b7a]">Create your first post to welcome members or share what is happening in your community.</p><button type="button" onClick={() => setShowComposer(true)} className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#6f5138] px-4 py-2.5 text-xs font-bold text-white"><Plus className="h-3.5 w-3.5" /> Create first post</button></div>}

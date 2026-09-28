@@ -20,6 +20,7 @@ export default async function TeacherCommunityPage() {
     include: {
       space: { select: { id: true, name: true, color: true } },
       comments: { orderBy: { createdAt: "asc" }, take: 50 },
+      _count: { select: { likes: true } },
     },
   });
 

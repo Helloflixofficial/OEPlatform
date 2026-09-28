@@ -85,5 +85,7 @@ export function serializeCommunityPost(post: any) {
       authorId: comment.authorId,
       createdAt: comment.createdAt.toISOString(),
     })),
+    likeCount: post._count?.likes ?? post.likeCount ?? 0,
+    userLiked: Boolean(post.userLiked ?? (post.likes && post.likes.length > 0)),
   };
 }

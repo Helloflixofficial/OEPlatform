@@ -25,6 +25,8 @@ export default async function CommunityPage() {
       include: {
         space: { select: { id: true, name: true, color: true } },
         comments: { orderBy: { createdAt: "asc" }, take: 50 },
+        _count: { select: { likes: true } },
+        likes: { where: { userId }, select: { userId: true } },
       },
     }),
   ]);

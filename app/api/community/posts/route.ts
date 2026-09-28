@@ -22,6 +22,8 @@ export async function GET(req: NextRequest) {
       include: {
         space: { select: { id: true, name: true, color: true } },
         comments: { orderBy: { createdAt: "asc" }, take: 50 },
+        _count: { select: { likes: true } },
+        likes: { where: { userId }, select: { userId: true } },
       },
     });
     return NextResponse.json(posts.map(serializeCommunityPost));
@@ -59,7 +61,7 @@ export async function POST(req: Request) {
 
     const post = await db.communityPost.create({
       data: { title, content, mediaUrl: mediaUrl || null, mediaType, linkUrl: linkUrl || null, linkTitle: linkTitle || null, spaceId: space.id, ownerId, authorId: userId, isAnnouncement, isApproved: true },
-      include: { space: { select: { id: true, name: true, color: true } }, comments: true },
+      include: { space: { select: { id: true, name: true, color: true } }, comments: true, _count: { select: { likes: true } }, likes: { where: { userId }, select: { userId: true } } },
     });
     return NextResponse.json(serializeCommunityPost(post), { status: 201 });
   } catch (error) {

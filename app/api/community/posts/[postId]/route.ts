@@ -43,7 +43,7 @@ export async function PATCH(req: Request, { params }: Context) {
     const post = await db.communityPost.update({
       where: { id: existing.id },
       data,
-      include: { space: { select: { id: true, name: true, color: true } }, comments: { orderBy: { createdAt: "asc" } } },
+      include: { space: { select: { id: true, name: true, color: true } }, comments: { orderBy: { createdAt: "asc" } }, _count: { select: { likes: true } }, likes: { where: { userId }, select: { userId: true } } },
     });
     return NextResponse.json(serializeCommunityPost(post));
   } catch (error) {

@@ -70,6 +70,7 @@ model CommunityPost {
   updatedAt      DateTime           @updatedAt
   space          CommunitySpace     @relation(fields: [spaceId], references: [id], onDelete: Cascade)
   comments       CommunityComment[]
+  likes          CommunityLike[]
 
   @@index([ownerId, createdAt])
   @@index([ownerId, isApproved, createdAt])
@@ -88,6 +89,19 @@ model CommunityComment {
 
   @@index([ownerId, createdAt])
   @@index([postId, createdAt])
+}
+
+model CommunityLike {
+  id        String         @id @default(uuid())
+  userId    String
+  ownerId   String
+  postId    String
+  createdAt DateTime       @default(now())
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([postId, createdAt])
+  @@index([ownerId, createdAt])
 }
 
 model Course {

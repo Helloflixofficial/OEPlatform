@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { clerkClient } from "@clerk/nextjs";
 
 export const DEFAULT_COMMUNITY_SPACES = [
   { name: "Announcements", slug: "announcements", description: "Important updates and news for your community.", color: "#bd8956" },
@@ -92,4 +93,36 @@ export function serializeCommunityPost(post: any) {
     likeCount: post._count?.likes ?? post.likeCount ?? 0,
     userLiked: Boolean(post.userLiked ?? (post.likes && post.likes.length > 0)),
   };
+}
+
+export async function hydrateCommunityProfiles(posts: any[]) {
+  const ids = new Set<string>();
+  for (const post of posts) {
+    if (!post.authorName) ids.add(post.authorId);
+    for (const comment of post.comments || []) if (!comment.authorName) ids.add(comment.authorId);
+  }
+  const profiles = new Map<string, { name: string; imageUrl: string | null }>();
+  await Promise.all(Array.from(ids).map(async (id) => {
+    try {
+      const user = await clerkClient.users.getUser(id);
+      profiles.set(id, {
+        name: [user.firstName, user.lastName].filter(Boolean).join(" ") || user.username || user.emailAddresses?.[0]?.emailAddress || "Community member",
+        imageUrl: user.imageUrl || null,
+      });
+    } catch {
+      profiles.set(id, { name: "Community member", imageUrl: null });
+    }
+  }));
+  return posts.map((post) => {
+    const author = post.authorName ? null : profiles.get(post.authorId);
+    return {
+      ...post,
+      authorName: post.authorName || author?.name || null,
+      authorImageUrl: post.authorImageUrl || author?.imageUrl || null,
+      comments: (post.comments || []).map((comment: any) => {
+        const profile = comment.authorName ? null : profiles.get(comment.authorId);
+        return { ...comment, authorName: comment.authorName || profile?.name || null, authorImageUrl: comment.authorImageUrl || profile?.imageUrl || null };
+      }),
+    };
+  });
 }

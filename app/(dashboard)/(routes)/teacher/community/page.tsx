@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
 import { db } from "@/lib/db";
-import { ensureCommunitySpaces, serializeCommunityPost } from "@/lib/community";
+import { ensureCommunitySpaces, hydrateCommunityProfiles, serializeCommunityPost } from "@/lib/community";
 import { isTeacher } from "@/lib/teacher";
 import { CommunityDashboard } from "./_components/community-dashboard";
 
@@ -35,7 +35,7 @@ export default async function TeacherCommunityPage() {
         color: space.color,
         postCount: space._count.posts,
       }))}
-      initialPosts={posts.map(serializeCommunityPost)}
+      initialPosts={(await hydrateCommunityProfiles(posts)).map(serializeCommunityPost)}
     />
   );
 }

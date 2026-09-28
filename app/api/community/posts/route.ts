@@ -2,7 +2,7 @@ import { auth, currentUser } from "@clerk/nextjs";
 import { NextRequest, NextResponse } from "next/server";
 
 import { db } from "@/lib/db";
-import { ensureCommunitySettings, ensureCommunitySpaces, getCommunityOwnerId, serializeCommunityPost } from "@/lib/community";
+import { ensureCommunitySettings, ensureCommunitySpaces, getCommunityOwnerId, hydrateCommunityProfiles, serializeCommunityPost } from "@/lib/community";
 import { isTeacher } from "@/lib/teacher";
 
 export async function GET(req: NextRequest) {
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
         likes: { where: { userId }, select: { userId: true } },
       },
     });
-    return NextResponse.json(posts.map(serializeCommunityPost));
+    return NextResponse.json((await hydrateCommunityProfiles(posts)).map(serializeCommunityPost));
   } catch (error) {
     console.error("[COMMUNITY_POSTS_GET]", error);
     return NextResponse.json({ error: "Unable to load community posts" }, { status: 500 });

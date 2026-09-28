@@ -39,6 +39,8 @@ type Comment = {
   id: string;
   content: string;
   authorId: string;
+  authorName: string | null;
+  authorImageUrl: string | null;
   createdAt: string;
 };
 
@@ -47,6 +49,8 @@ type Post = {
   title: string;
   content: string;
   authorId: string;
+  authorName: string | null;
+  authorImageUrl: string | null;
   spaceId: string;
   isPinned: boolean;
   isAnnouncement: boolean;
@@ -88,10 +92,10 @@ function timeAgo(value: string) {
   return days < 30 ? `${days}d ago` : new Date(value).toLocaleDateString();
 }
 
-function Avatar({ label, accent = "#bd8956" }: { label: string; accent?: string }) {
+function Avatar({ label, accent = "#bd8956", imageUrl }: { label: string; accent?: string; imageUrl?: string | null }) {
   return (
     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-extrabold text-white shadow-sm" style={{ background: accent }}>
-      {label.slice(0, 1).toUpperCase()}
+      {imageUrl ? <img src={imageUrl} alt={label} className="h-full w-full object-cover" /> : label.slice(0, 1).toUpperCase()}
     </div>
   );
 }
@@ -215,10 +219,10 @@ function PostCard({
       {post.isAnnouncement && <div className="flex items-center gap-2 bg-[#fff7e8] px-5 py-2 text-[11px] font-extrabold uppercase tracking-[0.16em] text-[#a66d2c]"><Megaphone className="h-3.5 w-3.5" /> Announcement</div>}
       <div className="p-5 sm:p-6">
         <div className="flex items-start gap-3">
-          <Avatar label="T" accent={post.space?.color || "#bd8956"} />
+          <Avatar label={post.authorName || "Teacher"} imageUrl={post.authorImageUrl} accent={post.space?.color || "#bd8956"} />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2 text-xs text-[#8d7b6b]">
-              <span className="font-bold text-[#4d3929]">You</span>
+              <span className="font-bold text-[#4d3929]">{post.authorName || "Teacher"}</span>
               <span>·</span>
               <span>{timeAgo(post.createdAt)}</span>
               {post.space && <span className="rounded-full bg-[#f7f1ea] px-2 py-0.5 font-semibold text-[#7d6653]">{post.space.name}</span>}
@@ -250,9 +254,9 @@ function PostCard({
               {post.comments.length === 0 && <p className="text-xs text-[#9d8b7a]">No comments yet. Start the conversation.</p>}
               {post.comments.map((item) => (
                 <div key={item.id} className="flex gap-2.5">
-                  <Avatar label={item.authorId === currentUserId ? "T" : "C"} accent={item.authorId === currentUserId ? "#bd8956" : "#8299ae"} />
+                  <Avatar label={item.authorName || (item.authorId === currentUserId ? "You" : "Community member")} imageUrl={item.authorImageUrl} accent={item.authorId === currentUserId ? "#bd8956" : "#8299ae"} />
                   <div className="min-w-0 flex-1 rounded-xl border border-[#eee4da] bg-white px-3 py-2.5">
-                    <div className="flex items-center gap-2 text-[11px] text-[#9d8b7a]"><span className="font-bold text-[#5c4737]">{item.authorId === currentUserId ? "You" : "Community member"}</span><span>·</span><span>{timeAgo(item.createdAt)}</span></div>
+                    <div className="flex items-center gap-2 text-[11px] text-[#9d8b7a]"><span className="font-bold text-[#5c4737]">{item.authorName || (item.authorId === currentUserId ? "You" : "Community member")}</span><span>·</span><span>{timeAgo(item.createdAt)}</span></div>
                     <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-6 text-[#6b5c50]">{item.content}</p>
                   </div>
                 </div>

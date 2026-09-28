@@ -61,6 +61,8 @@ model CommunityPost {
   linkUrl        String?
   linkTitle      String?
   authorId       String
+  authorName     String?
+  authorImageUrl String?
   ownerId        String
   spaceId        String
   isPinned       Boolean            @default(false)
@@ -81,6 +83,8 @@ model CommunityComment {
   id        String        @id @default(uuid())
   content   String
   authorId  String
+  authorName String?
+  authorImageUrl String?
   ownerId   String
   postId    String
   createdAt DateTime      @default(now())

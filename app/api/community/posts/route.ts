@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs";
+import { auth, currentUser } from "@clerk/nextjs";
 import { NextRequest, NextResponse } from "next/server";
 
 import { db } from "@/lib/db";
@@ -41,6 +41,9 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
+    const profile = await currentUser();
+    const authorName = [profile?.firstName, profile?.lastName].filter(Boolean).join(" ") || profile?.username || profile?.emailAddresses?.[0]?.emailAddress || "Teacher";
+    const authorImageUrl = profile?.imageUrl || null;
     await ensureCommunitySettings(ownerId);
     const title = typeof body.title === "string" ? body.title.trim() : "";
     const content = typeof body.content === "string" ? body.content.trim() : "";
@@ -60,7 +63,7 @@ export async function POST(req: Request) {
     if (!space) return NextResponse.json({ error: "Choose a valid community space" }, { status: 400 });
 
     const post = await db.communityPost.create({
-      data: { title, content, mediaUrl: mediaUrl || null, mediaType, linkUrl: linkUrl || null, linkTitle: linkTitle || null, spaceId: space.id, ownerId, authorId: userId, isAnnouncement, isApproved: true },
+      data: { title, content, mediaUrl: mediaUrl || null, mediaType, linkUrl: linkUrl || null, linkTitle: linkTitle || null, spaceId: space.id, ownerId, authorId: userId, authorName, authorImageUrl, isAnnouncement, isApproved: true },
       include: { space: { select: { id: true, name: true, color: true } }, comments: true, _count: { select: { likes: true } }, likes: { where: { userId }, select: { userId: true } } },
     });
     return NextResponse.json(serializeCommunityPost(post), { status: 201 });

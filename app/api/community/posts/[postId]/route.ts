@@ -21,6 +21,19 @@ export async function PATCH(req: Request, { params }: Context) {
     if (typeof body.isApproved === "boolean") data.isApproved = body.isApproved;
     if (typeof body.title === "string" && body.title.trim()) data.title = body.title.trim().slice(0, 120);
     if (typeof body.content === "string" && body.content.trim()) data.content = body.content.trim().slice(0, 10000);
+    if (typeof body.mediaUrl === "string") {
+      const mediaUrl = body.mediaUrl.trim();
+      if (mediaUrl && !/^https?:\/\//i.test(mediaUrl)) return NextResponse.json({ error: "Media URL must start with http:// or https://" }, { status: 400 });
+      data.mediaUrl = mediaUrl || null;
+    }
+    if (body.mediaType === "image" || body.mediaType === "gif") data.mediaType = body.mediaType;
+    if (body.mediaType === null || body.mediaType === "") data.mediaType = null;
+    if (typeof body.linkUrl === "string") {
+      const linkUrl = body.linkUrl.trim();
+      if (linkUrl && !/^https?:\/\//i.test(linkUrl)) return NextResponse.json({ error: "Link URL must start with http:// or https://" }, { status: 400 });
+      data.linkUrl = linkUrl || null;
+    }
+    if (typeof body.linkTitle === "string") data.linkTitle = body.linkTitle.trim().slice(0, 120) || null;
     if (typeof body.spaceId === "string") {
       const space = await db.communitySpace.findFirst({ where: { id: body.spaceId, ownerId: userId } });
       if (!space) return NextResponse.json({ error: "Space not found" }, { status: 400 });

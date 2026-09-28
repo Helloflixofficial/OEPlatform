@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
   const isAdmin = !!userId && isTeacher(userId);
   const ownerId = isAdmin ? userId : getCommunityOwnerId();
   if (!userId || !ownerId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!isAdmin) return NextResponse.json({ error: "Only teachers can publish community posts" }, { status: 403 });
 
   try {
     await ensureCommunitySpaces(ownerId);
@@ -38,21 +39,26 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const settings = await ensureCommunitySettings(ownerId);
-    if (!isAdmin && !settings.allowStudentPosts) return NextResponse.json({ error: "Student posts are currently disabled" }, { status: 403 });
+    await ensureCommunitySettings(ownerId);
     const title = typeof body.title === "string" ? body.title.trim() : "";
     const content = typeof body.content === "string" ? body.content.trim() : "";
+    const mediaUrl = typeof body.mediaUrl === "string" ? body.mediaUrl.trim() : "";
+    const mediaType = body.mediaType === "gif" ? "gif" : body.mediaType === "image" ? "image" : null;
+    const linkUrl = typeof body.linkUrl === "string" ? body.linkUrl.trim() : "";
+    const linkTitle = typeof body.linkTitle === "string" ? body.linkTitle.trim().slice(0, 120) : "";
     const spaceId = typeof body.spaceId === "string" ? body.spaceId : "";
     const isAnnouncement = isAdmin && body.isAnnouncement === true;
 
     if (!title || title.length > 120) return NextResponse.json({ error: "Add a post title up to 120 characters" }, { status: 400 });
     if (!content || content.length > 10000) return NextResponse.json({ error: "Add post content up to 10,000 characters" }, { status: 400 });
+    if (mediaUrl && !/^https?:\/\//i.test(mediaUrl)) return NextResponse.json({ error: "Media URL must start with http:// or https://" }, { status: 400 });
+    if (linkUrl && !/^https?:\/\//i.test(linkUrl)) return NextResponse.json({ error: "Link URL must start with http:// or https://" }, { status: 400 });
 
     const space = await db.communitySpace.findFirst({ where: { id: spaceId, ownerId } });
     if (!space) return NextResponse.json({ error: "Choose a valid community space" }, { status: 400 });
 
     const post = await db.communityPost.create({
-      data: { title, content, spaceId: space.id, ownerId, authorId: userId, isAnnouncement, isApproved: isAdmin || !settings.requirePostApproval },
+      data: { title, content, mediaUrl: mediaUrl || null, mediaType, linkUrl: linkUrl || null, linkTitle: linkTitle || null, spaceId: space.id, ownerId, authorId: userId, isAnnouncement, isApproved: true },
       include: { space: { select: { id: true, name: true, color: true } }, comments: true },
     });
     return NextResponse.json(serializeCommunityPost(post), { status: 201 });

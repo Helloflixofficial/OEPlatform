@@ -32,6 +32,7 @@ export default async function CommunityPage() {
   return (
     <StudentCommunity
       currentUserId={userId}
+      canManage={isTeacher(userId)}
       initialSettings={{
         communityName: settings.communityName,
         tagline: settings.tagline,

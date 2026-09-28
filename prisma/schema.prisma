@@ -56,6 +56,10 @@ model CommunityPost {
   id             String             @id @default(uuid())
   title          String
   content        String
+  mediaUrl       String?
+  mediaType      String?
+  linkUrl        String?
+  linkTitle      String?
   authorId       String
   ownerId        String
   spaceId        String

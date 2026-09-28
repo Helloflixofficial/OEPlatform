@@ -29,6 +29,13 @@ export const ourFileRouter = {
       await utapi.deleteFiles(error.fileKey)
     })
     .onUploadComplete(() => { }),
+  communityMedia: f({ image: { maxFileSize: '16MB', maxFileCount: 1 } })
+    .middleware(() => handleAuth())
+    .onUploadError(async error => {
+      console.error('[UPLOADTHING_COMMUNITY]', error)
+      await utapi.deleteFiles(error.fileKey)
+    })
+    .onUploadComplete(() => { }),
   chapterVideo: f({ video: { maxFileCount: 1, maxFileSize: '512GB' } })
     .middleware(() => handleAuth())
     .onUploadError(async error => {

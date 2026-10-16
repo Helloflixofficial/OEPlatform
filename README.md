@@ -150,3 +150,26 @@ Examples
 
   Display Prisma debug info
   $ prisma debug
+
+
+## Community push notifications
+
+The website sends a Firebase Cloud Messaging push after an approved teacher post is saved. Student devices must be signed in to the Termini Android app and subscribed to the `community_students` topic. The app already handles that subscription.
+
+### Local setup
+
+1. Use a Firebase service-account JSON for the same Firebase project used by the Android app. Grant only the Firebase Cloud Messaging send permission required by the Firebase Admin SDK.
+2. Base64-encode the complete JSON file as one line and set it in the ignored `.env.local` file:
+
+   `FIREBASE_SERVICE_ACCOUNT_BASE64=<base64-encoded-service-account-json>`
+
+3. Ensure `NEXT_PUBLIC_TEACHER_ID` contains the Clerk ID of the teacher account that publishes posts.
+4. Use Node.js 22 for local and Vercel deployments.
+
+### Vercel setup
+
+In the Vercel project that deploys this website, open Settings > Environment Variables and add `FIREBASE_SERVICE_ACCOUNT_BASE64` with the one-line base64 value of the Firebase Admin service-account JSON. Select Production (and Preview/Development only if you want push there). Keep the value server-only; do not prefix it with `NEXT_PUBLIC_`. Verify `NEXT_PUBLIC_TEACHER_ID` is configured with the posting teacher's Clerk ID, select Node.js 22.x in Project Settings, save, then create a new Production deployment. Vercel applies environment changes only to new deployments.
+
+To create the base64 value locally in PowerShell, run this with the path to your private JSON file. Copy the output directly into the Vercel environment variable form; never commit it:
+
+    [Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\path\to\firebase-service-account.json"))

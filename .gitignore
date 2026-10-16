@@ -41,3 +41,8 @@ next-env.d.ts
 certificates
 certificates-lan
 certificates-lan
+
+*firebase-adminsdk*.json
+firebase-service-account*.json
+
+env

@@ -32,7 +32,7 @@ const nextConfig = {
       'recharts',
       'date-fns',
     ],
-    serverComponentsExternalPackages: ['prisma', '@prisma/client'],
+    serverComponentsExternalPackages: ['prisma', '@prisma/client', 'firebase-admin'],
   },
 
   // ── LiveKit packages need transpiling (ESM) ───────────────────────────────
